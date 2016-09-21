@@ -76,24 +76,11 @@ def updatepos():
     json = util.getJson(request)
     user = database.get_user_object_from_token(json["token"])
     if user:
-        data = database.update_user_loc(user.ID, json["lat"], json["lng"])
-        resp = util.makeResponseDict(data)
+        database.update_user_loc(user.ID, json["lat"], json["lng"])
+        return JSON.dumps(util.makeResponseDict(200, "Position updated"))
     else:
-        resp = util.makeResponseDict(403, "Bad credentials")
+        return JSON.dumps(util.makeResponseDict(403, "Bad credentials"))
 
-    return JSON.dumps(resp)
-
-
-@app.route('/userspos', methods=["POST"])
-def uesrspos():
-    json = util.getJson(request)
-    user = database.get_user_object_from_token(json["token"])
-    if user:
-        resp = database.get_other_users_pos(user.token)
-    else:
-        resp = util.makeResponseDict(403, "Bad credentials")
-
-    return JSON.dumps(resp)
 
 if __name__ == '__main__':
     database.checkDB()

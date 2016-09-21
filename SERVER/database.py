@@ -77,17 +77,6 @@ def add_user(username, password):
         conn.close()
 
 
-def get_other_users_pos(token):
-    conn = connectDB()
-    c = conn.cursor()
-
-    c.execute("SELECT userid, displayname, online, lastseen, lat, lng FROM users NATURAL JOIN userinfo WHERE token <> '%s'" % token)
-    users = c.fetchall()
-
-    conn.close()
-    return users
-
-
 def get_user(username):
     conn = connectDB()
     c = conn.cursor()
@@ -139,8 +128,11 @@ def login_user(username, password):
     if user:
         if user[3] == hpass:
             c.execute("UPDATE userinfo SET online = 1, lastseen = %s WHERE userid = %s" %(int(time.time()), user[0]))
-            c.execute("UPDATE users SET token = '%s' WHERE userid = '%s'" %(generate_token(user[2]), user[0]))
+            token = generate_token(user[2])
+            c.execute("UPDATE users SET token = '%s' WHERE userid = '%s'" %(token, user[0]))
             conn.commit()
+            c.execute("SELECT * FROM users WHERE userid = '%s'" % user[0])
+            user = c.fetchone()
             conn.close()
             return user
 
@@ -153,15 +145,6 @@ def logout_user(userID):
     c = conn.cursor()
 
     c.execute("UPDATE userinfo SET online = 0, lastseen = '%s' WHERE userid = '%s'" %(int(time.time()), userID))
-    conn.commit()
-    conn.close()
-
-
-def logout_inactive():
-    conn = connectDB()
-    c = conn.cursor()
-
-    c.execute("UPDATE userinfo SET online = 0 WHERE lastseen = '%s'" %(int(time.time())-1800))
     conn.commit()
     conn.close()
 

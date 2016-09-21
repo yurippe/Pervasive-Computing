@@ -12,9 +12,9 @@ def getJson(request):
         json = request.form
     return json
 
-
 def makeResponseDict(status=200, msg="OK", data={}):
     return {"status" : status, "message" : msg, "data" : data}
+
 
 
 def loginUser(username, password):
