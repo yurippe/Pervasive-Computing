@@ -11,6 +11,7 @@ app.secret_key = Config.SECRET
 
 SESSIONS = {}
 
+
 def getUser(token):
     if SESSIONS.has_key(token):
         user = SESSIONS[token]
@@ -24,7 +25,7 @@ def getUser(token):
 def login():
     if request.method == "POST":
         json = util.getJson(request)
-        user = util.loginUser(json["username"], json["password"])
+        user = database.login_user_object(json["username"], json["password"])
         if user:
             resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
             SESSIONS[user.token] = user
@@ -50,7 +51,7 @@ def signup():
             resp = util.makeResponseDict(403, "Username taken")
         else:
             database.add_user(json["username"], json["password"])
-            user = util.loginUser(json["username"], json["password"])
+            user = database.login_user_object(json["username"], json["password"])
             if user:
                 resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
                 SESSIONS[user.token] = user
@@ -81,6 +82,7 @@ def updatepos():
     else:
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials"))
 
+
 @app.route('/userspos', methods=["POST"])
 def uesrspos():
     json = util.getJson(request)
@@ -92,6 +94,7 @@ def uesrspos():
 
     print(JSON.dumps(resp))
     return JSON.dumps(resp)
+
 
 if __name__ == '__main__':
     database.checkDB()

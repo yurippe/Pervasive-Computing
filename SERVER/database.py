@@ -115,7 +115,6 @@ def get_user_object_from_token(token):
         return None
 
 
-# Attempt to find the user in the database
 def login_user(username, password):
     conn = connectDB()
     c = conn.cursor()
@@ -138,6 +137,14 @@ def login_user(username, password):
 
     conn.close()
     return None
+
+
+def login_user_object(username, password):
+    user = login_user(username, password)
+    if user:
+        return User(user)
+    else:
+        return None
 
 
 def logout_user(userID):
@@ -175,6 +182,7 @@ def update_user_password(username, password):
     conn.commit()
     conn.close()
 
+
 def logout_inactive():
     conn = connectDB()
     c = conn.cursor()
@@ -182,6 +190,7 @@ def logout_inactive():
     c.execute("UPDATE userinfo SET online = 0 WHERE lastseen = '%s'" %(int(time.time())-1800))
     conn.commit()
     conn.close()
+
 
 def get_other_users_pos(token):
     conn = connectDB()
