@@ -81,6 +81,17 @@ def updatepos():
     else:
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials"))
 
+@app.route('/userspos', methods=["POST"])
+def uesrspos():
+    json = util.getJson(request)
+    user = database.get_user_object_from_token(json["token"])
+    if user:
+        resp = database.get_other_users_pos(user.token)
+    else:
+        resp = util.makeResponseDict(403, "Bad credentials")
+
+    print(JSON.dumps(resp))
+    return JSON.dumps(resp)
 
 if __name__ == '__main__':
     database.checkDB()

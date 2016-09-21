@@ -59,12 +59,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //TODO: Make the button be based on displayname of the marker selected
         Button map_button = (Button) findViewById(R.id.map_button);
-        map_button.setText(getIntent().getStringExtra("username"));
+        map_button.setText(token);//getIntent().getStringExtra("username"));
 
         Thread userupdates = new Thread(new Runnable() {
             @Override
             public void run() {
-                HashMap<String, User> users = new HashMap<>();
+                HashMap<Integer, User> users = new HashMap<>();
                 Endpoint endpoint = new Endpoint(tthis, "/userspos");
 
                 HashMap<String, String> credentials = new HashMap<>();
@@ -74,18 +74,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 while(true){
                     String resp = endpoint.syncCall(data);
                     try{
-                        JSONArray userarray = new JSONArray(resp);
-                        for(int i = 0; i < userarray.length() ; i++){
-                            JSONObject singularUser = (JSONObject) userarray.get(i);
-                            String uid = singularUser.getString("userid");
-                            if(users.containsKey(uid)){
-                                users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                        singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                        singularUser.getString("lastseen"));
-                            } else {
-                                users.put(uid, new User(mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                        singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                        singularUser.getString("lastseen")));
+                        if(resp != null) {
+                            JSONArray userarray = new JSONArray(resp);
+                            for (int i = 0; i < userarray.length(); i++) {
+                                JSONObject singularUser = (JSONObject) userarray.get(i);
+                                int uid = singularUser.getInt("userid");
+                                if (users.containsKey(uid)) {
+                                    users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                            singularUser.getString("lastseen"));
+                                } else {
+                                    users.put(uid, new User(mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                            singularUser.getString("lastseen")));
+                                }
                             }
                         }
                     } catch(JSONException e) {

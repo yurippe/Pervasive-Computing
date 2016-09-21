@@ -17,12 +17,12 @@ public class User {
     private GoogleMap mMap;
     private Marker marker;
 
-    private String userid;
+    private int userid;
     private String displayname;
     private boolean online;
     private String lastseen;
 
-    public User(GoogleMap mMap, String userid, double lat, double lng, String displayname, boolean online, String lastseen){
+    public User(GoogleMap mMap, int userid, double lat, double lng, String displayname, boolean online, String lastseen){
         this.mMap = mMap;
 
         this.userid = userid;
