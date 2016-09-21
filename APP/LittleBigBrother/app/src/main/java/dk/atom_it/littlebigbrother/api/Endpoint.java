@@ -26,17 +26,18 @@ public class Endpoint {
         this.context = context;
     }
 
-    public void callAndThrow(String data, Callback callback) throws IOException{
+    public Call callAndThrow(String data, Callback callback) throws IOException{
         API api = new API();
-        api.post(baseURL + endpoint, data, callback);
+        return api.post(baseURL + endpoint, data, callback);
     }
 
-    public void call(String data, Callback callback){
+    public Call call(String data, Callback callback){
         try{
-            callAndThrow(data, callback);
+            return callAndThrow(data, callback);
         } catch (IOException e){
             e.printStackTrace();
         }
+        return null;
     }
 
     public String syncCall(String data) {

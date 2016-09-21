@@ -100,7 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
-        userupdates.run();
+        userupdates.start();
     }
 
     @Override

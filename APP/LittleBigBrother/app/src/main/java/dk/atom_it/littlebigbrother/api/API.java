@@ -2,6 +2,7 @@ package dk.atom_it.littlebigbrother.api;
 
 import java.io.IOException;
 
+import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -30,12 +31,14 @@ public class API {
         return response.body().string();
     }
 
-    public void post(String url, String json, Callback callback) throws IOException {
+    public Call post(String url, String json, Callback callback) throws IOException {
         RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
                 .build();
-        client.newCall(request).enqueue(callback);
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+        return call;
     }
 }
