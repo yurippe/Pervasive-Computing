@@ -43,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String token = "";
     private Marker myMapMarker;
 
-    final Context tthis = this;
+    final MapsActivity tthis = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,48 +61,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button map_button = (Button) findViewById(R.id.map_button);
         map_button.setText(token);//getIntent().getStringExtra("username"));
 
-        Thread userupdates = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HashMap<Integer, User> users = new HashMap<>();
-                Endpoint endpoint = new Endpoint(tthis, "/userspos");
-
-                HashMap<String, String> credentials = new HashMap<>();
-                credentials.put("token", token);
-                String data = new JSONObject(credentials).toString();
-
-                while(true){
-                    String resp = endpoint.syncCall(data);
-                    try{
-                        if(resp != null) {
-                            JSONArray userarray = new JSONArray(resp);
-                            for (int i = 0; i < userarray.length(); i++) {
-                                JSONObject singularUser = (JSONObject) userarray.get(i);
-                                int uid = singularUser.getInt("userid");
-                                if (users.containsKey(uid)) {
-                                    users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                            singularUser.getString("lastseen"));
-                                } else {
-                                    users.put(uid, new User(mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                            singularUser.getString("lastseen")));
-                                }
-                            }
-                        }
-                    } catch(JSONException e) {
-                        //meh... don't let them know
-                    }
-
-                    try{Thread.sleep(5000);
-                    } catch(Exception e){
-                        Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }
-            }
-        });
-        userupdates.start();
     }
 
     @Override
@@ -139,6 +97,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             System.err.println("Exception! No permission");
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();
         }
+
+        Thread userupdates = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HashMap<Integer, User> users = new HashMap<>();
+                Endpoint endpoint = new Endpoint(tthis, "/userspos");
+
+                HashMap<String, String> credentials = new HashMap<>();
+                credentials.put("token", token);
+                String data = new JSONObject(credentials).toString();
+
+                while(true){
+                    String resp = endpoint.syncCall(data);
+                    try{
+                        if(resp != null) {
+                            JSONArray userarray = new JSONArray(resp);
+                            for (int i = 0; i < userarray.length(); i++) {
+                                JSONObject singularUser = userarray.getJSONObject(i);
+                                int uid = singularUser.getInt("userid");
+                                if (users.containsKey(uid)) {
+                                    users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                            singularUser.getString("lastseen"));
+                                } else {
+                                    users.put(uid, new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                            singularUser.getString("lastseen")));
+                                }
+                            }
+                        } else {
+                            Toast.makeText(tthis, "Server unreachable, will reconnect in 10 sec", Toast.LENGTH_SHORT).show();
+                            try{Thread.sleep(10000);
+                            } catch(Exception e){
+                                Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }
+                    } catch(JSONException e) {
+                        //meh... don't let them know
+                    }
+
+                    try{Thread.sleep(5000);
+                    } catch(Exception e){
+                        Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+            }
+        });
+        userupdates.start();
     }
 
     @Override

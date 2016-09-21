@@ -14,16 +14,19 @@ public class User {
     private double lat;
     private double lng;
 
-    private GoogleMap mMap;
+    private final MapsActivity mActivity;
+    private final GoogleMap mMap;
     private Marker marker;
 
-    private int userid;
+    private final int userid;
     private String displayname;
     private boolean online;
     private String lastseen;
 
-    public User(GoogleMap mMap, int userid, double lat, double lng, String displayname, boolean online, String lastseen){
-        this.mMap = mMap;
+    public User(final MapsActivity mActivity, final GoogleMap inmMap, final int userid, final double lat,
+                final double lng, final String displayname, final boolean online, final String lastseen){
+        this.mActivity = mActivity;
+        this.mMap = inmMap;
 
         this.userid = userid;
 
@@ -34,35 +37,62 @@ public class User {
         this.online = online;
         this.lastseen = lastseen;
 
-        LatLng pos = new LatLng(lat, lng);
-        marker = mMap.addMarker(new MarkerOptions().position(pos).title(displayname));
-        marker.setDraggable(false);
-    }
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                marker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(displayname));
+                marker.setDraggable(false);
+                marker.setZIndex(-1);
 
-    public void update(double lat, double lng, String displayname, boolean online, String lastseen){
-        this.lat = lat;
-        this.lng = lng;
-        marker.setPosition(new LatLng(lat, lng));
-
-        if(!this.displayname.equals(displayname)){
-            this.displayname = displayname;
-            marker.setTitle(displayname);
-        }
-
-        if(this.online != online){
-            this.online = online;
-            if(online){
+                marker.setPosition(new LatLng(lat, lng));
+                String title = "" + displayname;
                 if(online){
                     marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
                     marker.setAlpha((float) 0.9);
+                    title = title + ", online";
                 } else {
                     marker.setIcon(BitmapDescriptorFactory.defaultMarker(200));
                     marker.setAlpha((float) 0.4);
+                    title = title + ", offline";
                 }
+                marker.setTitle(title);
             }
+        });
+
+    }
+
+    public void update(final double lat, final double lng, final String displayname, final boolean online, final String lastseen){
+        this.lat = lat;
+        this.lng = lng;
+
+        if(!this.displayname.equals(displayname)){
+            this.displayname = displayname;
+        }
+
+        if(this.online != online) {
+            this.online = online;
         }
 
         this.lastseen = lastseen;
+
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                marker.setPosition(new LatLng(lat, lng));
+                String title = "" + displayname;
+                if(online){
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
+                    marker.setAlpha((float) 0.9);
+                    title = title + ", online";
+                } else {
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(200));
+                    marker.setAlpha((float) 0.2);
+                    title = title + ", offline";
+                }
+                marker.setTitle(title);
+            }
+        });
+
     }
 
     public Marker getMarker(){

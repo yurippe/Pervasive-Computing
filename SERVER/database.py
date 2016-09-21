@@ -43,8 +43,14 @@ def checkDB():
     conn.commit()
 
     #Check if test user is in database
-    if not get_user("admin"):
-        add_user("admin", "admin")
+    if not get_user("Steffan"):
+        add_user("Steffan", "123")
+    if not get_user("Kristian"):
+        add_user("Kristian", "123")
+    if not get_user("Nicolai"):
+        add_user("Nicolai", "123")
+    if not get_user("Matus"):
+        add_user("Matus", "123")
 
     #Milestone 3
 
@@ -151,6 +157,7 @@ def logout_user(userID):
     conn = connectDB()
     c = conn.cursor()
 
+    c.execute("UPDATE users SET token = NULL WHERE userid = '%s'" %(userID))
     c.execute("UPDATE userinfo SET online = 0, lastseen = '%s' WHERE userid = '%s'" %(int(time.time()), userID))
     conn.commit()
     conn.close()
@@ -199,8 +206,6 @@ def get_other_users_pos(token):
     c.execute("SELECT userid, displayname, online, lastseen, lat, lng FROM users NATURAL JOIN userinfo WHERE token <> '%s' OR token IS NULL" % token)
     result = c.fetchall()
     users = [{"userid": user[0], "displayname": user[1], "online": user[2], "lastseen": user[3], "lat": user[4], "lng": user[5]} for user in result]
-    print(token)
-    print(users)
 
     conn.close()
     return users

@@ -1,6 +1,6 @@
-<resources>
+    <resources>
     <string name="app_name">Little Big Brother</string>
-    <string name="base_url">http://yurippe.net:7777</string>
+    <string name="base_url">http://10.192.143.51:7777</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_login">Little Big Brotha</string>
     <string name="title_activity_signup">Sign Up</string>
