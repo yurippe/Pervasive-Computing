@@ -41,6 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
 
     private String token = "";
+    private String online = "true";
     private Marker myMapMarker;
 
     final MapsActivity tthis = this;
@@ -59,8 +60,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //TODO: Make the button be based on displayname of the marker selected
         Button map_button = (Button) findViewById(R.id.map_button);
-        map_button.setText(token);//getIntent().getStringExtra("username"));
-
+        if(token != null){
+            map_button.setText(token);//getIntent().getStringExtra("username"));
+        } else {
+            map_button.setText("Offline");
+        }
     }
 
     @Override
@@ -98,55 +102,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();
         }
 
-        Thread userupdates = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HashMap<Integer, User> users = new HashMap<>();
-                Endpoint endpoint = new Endpoint(tthis, "/userspos");
+        if(token != null){
+            Toast.makeText(tthis, "hdaf!" + token, Toast.LENGTH_SHORT).show();
+            Thread userupdates = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HashMap<Integer, User> users = new HashMap<>();
+                    Endpoint endpoint = new Endpoint(tthis, "/userspos");
 
-                HashMap<String, String> credentials = new HashMap<>();
-                credentials.put("token", token);
-                String data = new JSONObject(credentials).toString();
+                    HashMap<String, String> credentials = new HashMap<>();
+                    credentials.put("token", token);
+                    String data = new JSONObject(credentials).toString();
 
-                while(true){
-                    String resp = endpoint.syncCall(data);
-                    try{
-                        if(resp != null) {
-                            JSONArray userarray = new JSONArray(resp);
-                            for (int i = 0; i < userarray.length(); i++) {
-                                JSONObject singularUser = userarray.getJSONObject(i);
-                                int uid = singularUser.getInt("userid");
-                                if (users.containsKey(uid)) {
-                                    users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                            singularUser.getString("lastseen"));
-                                } else {
-                                    users.put(uid, new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                            singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                            singularUser.getString("lastseen")));
+                    while (true) {
+                        String resp = endpoint.syncCall(data);
+                        try {
+                            if (resp != null) {
+                                JSONArray userarray = new JSONArray(resp);
+                                for (int i = 0; i < userarray.length(); i++) {
+                                    JSONObject singularUser = userarray.getJSONObject(i);
+                                    int uid = singularUser.getInt("userid");
+                                    if (users.containsKey(uid)) {
+                                        users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                                singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                                singularUser.getString("lastseen"));
+                                    } else {
+                                        users.put(uid, new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                                singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                                singularUser.getString("lastseen")));
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(tthis, "Server unreachable, will reconnect in 10 sec", Toast.LENGTH_SHORT).show();
+                                try {
+                                    Thread.sleep(10000);
+                                } catch (Exception e) {
+                                    Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                                    return;
                                 }
                             }
-                        } else {
-                            Toast.makeText(tthis, "Server unreachable, will reconnect in 10 sec", Toast.LENGTH_SHORT).show();
-                            try{Thread.sleep(10000);
-                            } catch(Exception e){
-                                Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
+                        } catch (JSONException e) {
+                            //meh... don't let them know
                         }
-                    } catch(JSONException e) {
-                        //meh... don't let them know
-                    }
 
-                    try{Thread.sleep(20000);
-                    } catch(Exception e){
-                        Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
-                        return;
+                        try {
+                            Thread.sleep(20000);
+                        } catch (Exception e) {
+                            Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                     }
                 }
-            }
-        });
-        userupdates.start();
+            });
+            userupdates.start();
+        }
     }
 
     @Override
@@ -155,23 +164,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
 
         //Send movement to server
-        Endpoint loc = new Endpoint(this, "/updatepos");
-        HashMap<String, String> data = new HashMap<>();
-        data.put("token", token);
-        data.put("lat", "" + pos.latitude);
-        data.put("lng", "" + pos.longitude);
-        JSONObject json = new JSONObject(data);
-        loc.call(json.toString(), new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Toast.makeText(tthis, "Could not update server on our location", Toast.LENGTH_SHORT).show();
-            }
+        if(token != null){
+            Toast.makeText(tthis, "hej2!", Toast.LENGTH_SHORT).show();
+            Endpoint loc = new Endpoint(this, "/updatepos");
+            HashMap<String, String> data = new HashMap<>();
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                response.close();
-            }
-        });
+            data.put("token", token);
+            data.put("lat", "" + pos.latitude);
+            data.put("lng", "" + pos.longitude);
+            JSONObject json = new JSONObject(data);
+            loc.call(json.toString(), new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Toast.makeText(tthis, "Could not update server on our location", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    response.close();
+                }
+            });
+        }
 
         //Update marker
         myMapMarker.setPosition(pos);
@@ -180,32 +193,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onBackPressed(){
-        HashMap<String, String> data = new HashMap<>();
-        data.put("token", token);
-        JSONObject json = new JSONObject(data);
+        if(token != null) {
+            HashMap<String, String> data = new HashMap<>();
+            data.put("token", token);
+            JSONObject json = new JSONObject(data);
 
-        Endpoint logout = new Endpoint(this, "/logout");
-        logout.call(json.toString(), new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Toast.makeText(tthis, "Logout failed", Toast.LENGTH_SHORT);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //The server always goes 200 on logout, but whatever... here it is...
-                try {
-                    JSONObject jsonresp = new JSONObject(response.body().string());
-                    if(jsonresp.getInt("status") != 200){
-                        Toast.makeText(tthis, "Logout failed: " + jsonresp.getString("message"), Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    Toast.makeText(tthis, "Invalid server response", Toast.LENGTH_SHORT).show();
+            Endpoint logout = new Endpoint(this, "/logout");
+            logout.call(json.toString(), new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Toast.makeText(tthis, "Logout failed", Toast.LENGTH_SHORT);
                 }
-                response.close(); //Very important
-            }
-        });
 
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    //The server always goes 200 on logout, but whatever... here it is...
+                    try {
+                        JSONObject jsonresp = new JSONObject(response.body().string());
+                        if (jsonresp.getInt("status") != 200) {
+                            Toast.makeText(tthis, "Logout failed: " + jsonresp.getString("message"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(tthis, "Invalid server response", Toast.LENGTH_SHORT).show();
+                    }
+                    response.close(); //Very important
+                }
+            });
+        }
         Intent intent = new Intent(this, Login.class);
         this.startActivity(intent);
     }
