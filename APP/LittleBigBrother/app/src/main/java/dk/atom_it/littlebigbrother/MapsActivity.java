@@ -138,7 +138,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //meh... don't let them know
                     }
 
-                    try{Thread.sleep(5000);
+                    try{Thread.sleep(20000);
                     } catch(Exception e){
                         Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
                         return;

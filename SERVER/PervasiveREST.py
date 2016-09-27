@@ -4,7 +4,6 @@ import time
 import util
 import database
 import Config
-from User import User
 
 app = Flask(__name__)
 app.secret_key = Config.SECRET
@@ -21,6 +20,8 @@ def getUser(token):
         return None
 
 
+######################################################
+# MILESTONE 2
 @app.route("/login", methods=["POST"])
 def login():
     if request.method == "POST":
@@ -52,12 +53,8 @@ def signup():
         else:
             database.add_user(json["username"], json["password"])
             user = database.login_user_object(json["username"], json["password"])
-            if user:
-                resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
-                SESSIONS[user.token] = user
-            else:
-                #this will never happen...
-                resp = util.makeResponseDict(403, "Server shit the bed")
+            resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
+            SESSIONS[user.token] = user
 
         return JSON.dumps(resp)
 
@@ -84,11 +81,64 @@ def updatepos():
 
 
 @app.route('/userspos', methods=["POST"])
-def uesrspos():
+def userspos():
     json = util.getJson(request)
     return JSON.dumps(database.get_other_users_pos(json["token"]))
 
 
+######################################################
+# MILESTONE 3
+@app.route('/adddevice', methods=["POST"])
+def add_device():
+    if request.method == "POST":
+        json = util.getJson(request)
+        device = database.add_device(json["mac"])
+
+        #Check if there's more in the request to add
+        if json["owner"]:
+            database.update_device_owner(json["mac"], json["owner"])
+
+        if json["name"]:
+            database.update_device_name(json["mac"], json["name"])
+
+        if json["lat"] and json["lng"]:
+            database.update_device_info(json["mac"], json["lat"], json["lng"])
+
+
+@app.route('/updatedevice', methods=["POST"])
+def update_device():
+    if request.method == "POST":
+        json = util.getJson(request)
+        device = database.get_device_object(json["mac"])
+
+        if device:
+            if json["owner"] and json["owner"] != device.owner:
+                database.update_device_owner(json["mac"], json["owner"])
+
+            if json["name"] and json["name"] != device.name:
+                database.update_device_name(json["mac"], json["name"])
+
+            if json["lat"] and json["lng"] and json["lat"] != device.lat and json["lng"] != device.lng:
+                database.update_device_info(json["mac"], json["lat"], json["lng"])
+
+
+@app.route('/deviceinfo', methods=["POST"])
+def device_info():
+    json = util.getJson(request)
+
+    device = database.get_device_object(json["mac"])
+
+    if device:
+        data = {"name": device.name, "owner": device.owner, "lastseen": device.last_activity, "lat": device.lat, "lng": device.lng}
+        return JSON.dumps(util.makeResponseDict(data))
+    else:
+        return JSON.dumps(util.makeResponseDict(404, "Device not known"))
+
+
+######################################################
+# SETUP
 if __name__ == '__main__':
     database.checkDB()
     app.run(host='', port=7777)
+
+
