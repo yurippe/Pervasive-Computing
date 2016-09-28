@@ -243,7 +243,7 @@ def get_device(mac):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT name, owner FROM devices WHERE mac = '%s';" % (mac))
+    c.execute("SELECT name, user FROM devices INNER JOIN users ON userid = owner WHERE mac = '%s';" % (mac))
     device = c.fetchone()
 
     conn.close()
@@ -274,7 +274,7 @@ def get_all_devices():
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT mac, name, owner, lastseen, lat, lng FROM devices NATURAL JOIN deviceinfo;")
+    c.execute("SELECT mac, name, user, lastseen, lat, lng FROM users INNER JOIN (SELECT mac, name, owner, lastseen, lat, lng FROM devices NATURAL JOIN deviceinfo) ON userid = owner;")
     result = c.fetchall()
     devices = [{"mac": device[0], "name": device[1], "owner": device[2], "lastseen": device[3],
                 "lat": device[4], "lng": device[5]} for device in result]

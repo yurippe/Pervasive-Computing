@@ -68,7 +68,7 @@ public class Device {
                     } else if(jsonresp.getInt("status") == 200){
                         setName(jsonresp.getString("name"));
                         setOwner(jsonresp.getString("owner"));
-                        setLastSeen(jsonresp.getString("lastseen"));
+                        //setLastSeen(jsonresp.getString("lastseen"));
                     } else {
                         return;
                     }
