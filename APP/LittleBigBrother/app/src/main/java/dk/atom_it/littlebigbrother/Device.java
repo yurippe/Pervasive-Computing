@@ -30,18 +30,26 @@ public class Device {
     private double lat;
     private double lng;
 
-    public Device(final Activity activity, final String itoken, final String iaddress, final String iname){
+    public Device(final Activity activity, final String itoken, final String iaddress, final String iname, double lat, double lng){
         this.token = itoken;
         this.activity = activity;
 
         this.address = iaddress;
 
-        HashMap<String, String> data = new HashMap<>();
-        data.put("token", token);
-        data.put("mac", iaddress);
+        this.lat = lat;
+        this.lng = lng;
 
-        Endpoint login = new Endpoint(this.activity, "/deviceinfo");
-        login.call(data.toString(), new Callback() {
+
+        Endpoint endpoint = new Endpoint(this.activity, "/deviceinfo");
+        JSONObject data = new JSONObject();
+        try{
+            data.put("token", token);
+            data.put("mac", iaddress);
+        } catch (JSONException e) {
+            return;
+        }
+
+        endpoint.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 makeToast("Checking server about blueetooth device failed", Toast.LENGTH_SHORT);
@@ -54,7 +62,7 @@ public class Device {
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     if(jsonresp.getInt("status") == 404){
                         setName(iname);
-                        commit();
+                        addDevice();
                         return;
                     } else if(jsonresp.getInt("status") == 200){
                         setName(jsonresp.getString("name"));
@@ -91,8 +99,46 @@ public class Device {
         this.lng = lng;
     }
 
-    public void commit(){
+    public void addDevice(){
+        Endpoint endpoint = new Endpoint(this.activity, "/deviceinfo");
+        JSONObject data = new JSONObject();
+        try{
+            data.put("token", token);
+            data.put("mac", address);
+            data.put("name", name);
+            data.put("lat", lat);
+            data.put("lng", lng);
+        } catch (JSONException e) {
+            return;
+        }
 
+        endpoint.call(data.toString(), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                makeToast("Adding bluetooth device failed", Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    JSONObject jsonresp = new JSONObject(response.body().string());
+                    if(jsonresp.getInt("status") != 200){
+                        makeToast("Adding bluetooth device failed", Toast.LENGTH_SHORT);
+                        return;
+                    }
+
+                } catch (JSONException e) {
+                    makeToast("Couldn't send bluetooth info to server", Toast.LENGTH_SHORT);
+                    return;
+                }
+
+                response.close(); //Very important
+            }
+        });
+
+    }
+
+    public void commit(){
         Endpoint login = new Endpoint(activity, "/updatedevice");
         JSONObject data = new JSONObject();
         try {
@@ -103,8 +149,9 @@ public class Device {
             data.put("lat", "" + lat);
             data.put("lng", "" + lng);
         } catch (JSONException e){
-
+            return;
         }
+
         login.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -118,7 +165,7 @@ public class Device {
                     if(jsonresp.getInt("status") != 200){
                         makeToast("Updating bluetooth device failed", Toast.LENGTH_SHORT);
                     } else {
-                        makeToast("Update successful", Toast.LENGTH_SHORT);
+                        //makeToast("Update successful", Toast.LENGTH_SHORT);
                     }
 
                 } catch (JSONException e) {
@@ -128,8 +175,6 @@ public class Device {
             }
         });
     }
-
-
 
     public void makeToast(final String msg, final int length){
         activity.runOnUiThread(new Runnable() {
