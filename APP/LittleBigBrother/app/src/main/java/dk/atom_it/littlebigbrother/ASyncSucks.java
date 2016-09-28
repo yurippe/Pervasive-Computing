@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+
 import java.util.List;
 
 /**
@@ -99,6 +101,15 @@ public abstract class ASyncSucks {
         this.BTAdapter.startDiscovery();
     }
 
+    public void startBluetoothDiscovery(int sleep){
+        Delay(sleep, new Runnable() {
+            @Override
+            public void run() {
+                startBluetoothDiscovery();
+            }
+        });
+    }
+
     public abstract void onBluetoothSetupError();
     public abstract void onBluetoothDeviceDiscovery(BluetoothDevice device);
     public abstract void onBluetoothDiscoveryStarted();
@@ -109,10 +120,25 @@ public abstract class ASyncSucks {
         this.WiFiManager.startScan();
     }
 
+    public void startWiFiScan(int sleep){
+        Delay(sleep, new Runnable() {
+            @Override
+            public void run() {
+                startWiFiScan();
+            }
+        });
+    }
+
     public abstract void onWiFiSetupError();
     public abstract void onWiFiScanResults(List<ScanResult> APs);
     public abstract void onWiFiScanStarted();
     public abstract void onWiFiScanCompleted();
+
+
+    public void Delay(int milliseconds, Runnable runnable){
+        Handler handler = new Handler();
+        handler.postDelayed(runnable, milliseconds);
+    }
 
 
     public void unregisterAllReceivers(){
