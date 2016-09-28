@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import android.location.LocationListener;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -75,6 +76,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             map_button.setText("Offline");
         }
+
+        map_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                Intent toList = new Intent(tthis, Blist.class);
+                tthis.startActivity(toList);
+            }
+        });
 
         final HashMap<String, Device> deviceHashMap = new HashMap<>();
 
@@ -169,7 +178,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();
         }
         if(token != null){
-            Toast.makeText(tthis, "hdaf!" + token, Toast.LENGTH_SHORT).show();
             userupdates = new Thread(new Runnable() {
                 @Override
                 public void run() {

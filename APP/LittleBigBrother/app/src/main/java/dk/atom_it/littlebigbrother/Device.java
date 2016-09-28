@@ -30,7 +30,7 @@ public class Device {
     private double lat;
     private double lng;
 
-    public Device(final Activity activity, final String itoken, final String iaddress, final String iname, double lat, double lng){
+    public Device(final Activity activity, final String itoken, final String iaddress, final String iname){
         this.token = itoken;
         this.activity = activity;
 
