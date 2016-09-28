@@ -85,6 +85,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             @Override
+            public void onBluetoothStartError() {
+                
+            }
+
+            @Override
             public void onBluetoothDeviceDiscovery(BluetoothDevice device) {
                 double lat = myMapMarker.getPosition().latitude;
                 double lng = myMapMarker.getPosition().longitude;
@@ -115,6 +120,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onWiFiSetupError() {
                 Toast.makeText(this.activity, "Could not access WiFi on this device", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onWiFiStartError() {
+
             }
 
             @Override
