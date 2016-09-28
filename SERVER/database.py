@@ -241,7 +241,7 @@ def get_device(mac):
 def get_device_object(mac):
     device = get_device(mac)
     if device:
-        return Device(device)
+        return Device(mac, device)
     else:
         return None
 
