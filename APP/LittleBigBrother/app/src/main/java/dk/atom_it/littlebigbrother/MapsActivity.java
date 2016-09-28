@@ -64,14 +64,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
         token = getIntent().getStringExtra("token");
-
-        //TODO: Make the button be based on displayname of the marker selected
+        
         Button map_button = (Button) findViewById(R.id.map_button);
-        if(token != null){
-            map_button.setText(token);//getIntent().getStringExtra("username"));
-        } else {
-            map_button.setText("Offline");
-        }
+        map_button.setText("Bluetooth Devices");
 
         map_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,7 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     deviceHashMap.put(device.getAddress(), foundDevice);
                 } else {
                     foundDevice = deviceHashMap.get(device.getAddress());
-                    foundDevice.setLatLng(myMapMarker.getPosition().latitude, myMapMarker.getPosition().longitude);
+                    foundDevice.setLatLng(lat, lng);
                     foundDevice.commit();
                 }
 
