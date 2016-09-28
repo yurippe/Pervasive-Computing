@@ -144,6 +144,18 @@ def get_other_users_pos(token):
     return users
 
 
+def get_all_users():
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT displayname, online, lastseen, lat, lng FROM users NATURAL JOIN userinfo;")
+    result = c.fetchall()
+    users = [{"displayname": user[0], "online": user[1], "lastseen": user[2], "lat": user[3], "lng": user[4]} for user in result]
+
+    conn.close()
+    return users
+
+
 def login_user(username, password):
     conn = connectDB()
     c = conn.cursor()

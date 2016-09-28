@@ -31,6 +31,8 @@ public class Device {
     private double lng;
 
     public Device(final Activity activity, final String itoken, final String iaddress, final String iname, final Double lat, final Double lng){
+
+
         this.token = itoken;
         this.activity = activity;
 
