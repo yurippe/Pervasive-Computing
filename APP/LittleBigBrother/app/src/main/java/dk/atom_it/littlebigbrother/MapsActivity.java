@@ -126,7 +126,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onWiFiScanCompleted() {
-                this.startWiFiScan(10000);
             }
         };
 
@@ -200,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     }
                                 }
                             } else {
-                                Toast.makeText(tthis, "Server unreachable, will reconnect in 10 sec", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(tthis, "Server unreachable, will reconnect in 10 sec", Toast.LENGTH_SHORT).show();
                                 try {
                                     Thread.sleep(10000);
                                 } catch (Exception e) {
