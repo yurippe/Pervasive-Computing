@@ -149,7 +149,6 @@ public class Device {
             data.put("token", token);
             data.put("mac", address);
             data.put("name", name);
-            data.put("owner", owner);
             data.put("lat", "" + lat);
             data.put("lng", "" + lng);
         } catch (JSONException e){
