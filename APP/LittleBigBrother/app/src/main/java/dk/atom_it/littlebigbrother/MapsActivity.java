@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import dk.atom_it.littlebigbrother.api.Endpoint;
 import okhttp3.Call;
@@ -45,17 +46,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private LocationManager locationManager;
-    private BluetoothAdapter BTadapter;
-    private WifiManager WiFiManager;
 
     private String token = "";
     private String online = "true";
     private Marker myMapMarker;
-    private BroadcastReceiver BTReceiver;
-    private BroadcastReceiver WIFIReceiver;
 
     private final MapsActivity tthis = this;
     private Thread userupdates;
+
+    private ASyncSucks aSyncSucks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,93 +76,52 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             map_button.setText("Offline");
         }
 
-        //START OF BLUETOOTH
-        BTadapter = BluetoothAdapter.getDefaultAdapter();
-        if(BTadapter != null) { //If it is null, we probably dont have bluetooth
-            BTReceiver = new BroadcastReceiver() {
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
 
-                    if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+        aSyncSucks = new ASyncSucks(this) {
+            @Override
+            public void onBluetoothSetupError() {
+                Toast.makeText(this.activity, "Could not access Bluetooth on this device", Toast.LENGTH_LONG).show();
+            }
 
+            @Override
+            public void onBluetoothDeviceDiscovery(BluetoothDevice device) {
+                Toast.makeText(this.activity, "Found Device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
+            }
 
-                    } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+            @Override
+            public void onBluetoothDiscoveryStarted() {
 
-                        //Restart the discovery process
-                        BTadapter.startDiscovery();
+            }
 
-                    } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                        //bluetooth device found
-                        final BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            @Override
+            public void onBluetoothDiscoveryCompleted() {
+                this.startBluetoothDiscovery();
+            }
 
-                        //TODO: Do something with found bluetooth device here
-                        tthis.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(tthis, "Found device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+            @Override
+            public void onWiFiSetupError() {
+                Toast.makeText(this.activity, "Could not access WiFi on this device", Toast.LENGTH_LONG).show();
+            }
 
-                    }
-                }
-            };
+            @Override
+            public void onWiFiScanResults(List<ScanResult> APs) {
+                Toast.makeText(this.activity, "Found " + APs.size() + " networks " + (APs.size()>0 ? "(e.x. " + APs.get(0).SSID + " - " + APs.get(0).BSSID + ")" : ""), Toast.LENGTH_SHORT).show();
+            }
 
+            @Override
+            public void onWiFiScanStarted() {
 
-            IntentFilter filter = new IntentFilter();
+            }
 
-            filter.addAction(BluetoothDevice.ACTION_FOUND);
-            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            @Override
+            public void onWiFiScanCompleted() {
+                this.startWiFiScan();
+            }
+        };
 
-            registerReceiver(BTReceiver, filter);
-            BTadapter.startDiscovery();
+        aSyncSucks.startWiFiScan();
+        aSyncSucks.startBluetoothDiscovery();
 
-        } else {
-            Toast.makeText(tthis, "Couldn't access Bluetooth.", Toast.LENGTH_LONG).show();
-        }
-        //END OF BLUETOOTH
-
-        //START OF WIFI
-        WiFiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        if(WiFiManager != null){
-
-            WIFIReceiver = new BroadcastReceiver() {
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-
-                    if(WiFiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)){
-
-                        for(ScanResult res : WiFiManager.getScanResults()){
-                            final ScanResult rres = res;
-
-                            //TODO do something with wifi scan results here
-                            tthis.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(tthis, "Found network: " + rres.SSID + " - " + rres.BSSID, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                        }
-                        WiFiManager.startScan();
-                    }
-
-                }
-
-            };
-
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(WiFiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-            registerReceiver(WIFIReceiver, filter);
-
-            WiFiManager.startScan();
-
-        } else {
-            Toast.makeText(tthis, "Couldn't access WiFi", Toast.LENGTH_LONG).show();
-        }
-
-
-        //END OF WIFI
     }
 
     @Override
@@ -321,12 +279,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(userupdates != null){
             userupdates.interrupt();
         }
-        if(BTReceiver != null){
-            unregisterReceiver(BTReceiver);
-        }
-        if(WIFIReceiver != null){
-            unregisterReceiver(WIFIReceiver);
-        }
+
+        aSyncSucks.unregisterAllReceivers();
+        aSyncSucks = null;
+
         Intent intent = new Intent(this, Login.class);
         this.startActivity(intent);
     }

@@ -23,7 +23,7 @@ public abstract class ASyncSucks {
     private BroadcastReceiver BTReceiver;
     private BroadcastReceiver WIFIReceiver;
 
-    private Activity activity;
+    protected Activity activity;
 
 
     public ASyncSucks(final Activity activity){
