@@ -38,8 +38,7 @@ public class Device {
 
         this.lat = lat;
         this.lng = lng;
-
-
+        
         Endpoint endpoint = new Endpoint(this.activity, "/deviceinfo");
         JSONObject data = new JSONObject();
         try{

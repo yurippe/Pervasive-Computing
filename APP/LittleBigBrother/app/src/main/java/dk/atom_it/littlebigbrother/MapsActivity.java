@@ -86,9 +86,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onBluetoothDeviceDiscovery(BluetoothDevice device) {
+                double lat = myMapMarker.getPosition().latitude;
+                double lng = myMapMarker.getPosition().longitude;
                 Device foundDevice;
+
                 if(!deviceHashMap.containsKey(device.getAddress())){
-                    foundDevice = new Device(this.activity, token, device.getAddress(), device.getName());
+                    foundDevice = new Device(this.activity, token, device.getAddress(), device.getName(), lat, lng);
                     deviceHashMap.put(device.getAddress(), foundDevice);
                 } else {
                     foundDevice = deviceHashMap.get(device.getAddress());
