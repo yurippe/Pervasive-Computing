@@ -273,25 +273,26 @@ def add_device(mac):
 
 
 def update_device_name(mac, name):
-    conn = connectDB()
-    c = conn.cursor()
+    if get_device_object(mac):
+        conn = connectDB()
+        c = conn.cursor()
 
-    c.execute("UPDATE devices SET name = '%s' WHERE mac = '%s';" % (name, mac))
-    conn.commit()
+        c.execute("UPDATE devices SET name = '%s' WHERE mac = '%s';" % (name, mac))
+        conn.commit()
 
-    conn.close()
+        conn.close()
 
 
 def update_device_owner(mac, username):
-    conn = connectDB()
-    c = conn.cursor()
-
     user = get_user_object(username)
+    device = get_device_object(mac)
 
-    c.execute("UPDATE devices SET owner = '%s' WHERE mac = '%s'" % (user.ID, mac))
-    conn.commit()
-
-    conn.close()
+    if user and device:
+        conn = connectDB()
+        c = conn.cursor()
+        c.execute("UPDATE devices SET owner = '%s' WHERE mac = '%s'" % (user.ID, mac))
+        conn.commit()
+        conn.close()
 
 
 def update_device_info(mac, lat, lng):
