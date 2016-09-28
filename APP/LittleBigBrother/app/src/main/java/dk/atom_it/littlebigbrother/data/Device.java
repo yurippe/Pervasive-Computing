@@ -140,6 +140,9 @@ public class Device {
     }
 
     public void commit(){
+        //TODO: Don't automatically claim...
+        claimDevice();
+
         Endpoint login = new Endpoint(activity, "/updatedevice");
         JSONObject data = new JSONObject();
         try {
@@ -165,6 +168,40 @@ public class Device {
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     if(jsonresp.getInt("status") != 200){
                         makeToast("Updating bluetooth device failed", Toast.LENGTH_SHORT);
+                    } else {
+                        //makeToast("Update successful", Toast.LENGTH_SHORT);
+                    }
+
+                } catch (JSONException e) {
+                    makeToast("Couldn't send bluetooth info to server", Toast.LENGTH_SHORT);
+                }
+                response.close(); //Very important
+            }
+        });
+    }
+
+    public void claimDevice(){
+        Endpoint login = new Endpoint(activity, "/claimdevice");
+        JSONObject data = new JSONObject();
+        try {
+            data.put("token", token);
+            data.put("mac", address);
+        } catch (JSONException e){
+            return;
+        }
+
+        login.call(data.toString(), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                makeToast("Claiming bluetooth device failed", Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    JSONObject jsonresp = new JSONObject(response.body().string());
+                    if(jsonresp.getInt("status") != 200){
+                        makeToast("Claiming bluetooth device failed", Toast.LENGTH_SHORT);
                     } else {
                         //makeToast("Update successful", Toast.LENGTH_SHORT);
                     }
