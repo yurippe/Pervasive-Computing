@@ -38,7 +38,7 @@ public class Device {
 
         this.lat = lat;
         this.lng = lng;
-        
+
         Endpoint endpoint = new Endpoint(this.activity, "/deviceinfo");
         JSONObject data = new JSONObject();
         try{
@@ -99,7 +99,7 @@ public class Device {
     }
 
     public void addDevice(){
-        Endpoint endpoint = new Endpoint(this.activity, "/deviceinfo");
+        Endpoint endpoint = new Endpoint(this.activity, "/adddevice");
         JSONObject data = new JSONObject();
         try{
             data.put("token", token);
