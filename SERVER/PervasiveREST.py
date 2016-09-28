@@ -24,16 +24,15 @@ def getUser(token):
 # MILESTONE 2
 @app.route("/login", methods=["POST"])
 def login():
-    if request.method == "POST":
-        json = util.getJson(request)
-        user = database.login_user_object(json["username"], json["password"])
-        if user:
-            resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
-            SESSIONS[user.token] = user
-        else:
-            resp = util.makeResponseDict(403, "Bad credentials")
+    json = util.getJson(request)
+    user = database.login_user_object(json["username"], json["password"])
+    if user:
+        resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
+        SESSIONS[user.token] = user
+    else:
+        resp = util.makeResponseDict(403, "Bad credentials")
 
-        return JSON.dumps(resp)
+    return JSON.dumps(resp)
 
 
 @app.route("/logout", methods=["POST"])
@@ -46,17 +45,16 @@ def logout():
 
 @app.route("/signup", methods=["POST"])
 def signup():
-    if request.method == "POST":
-        json = util.getJson(request)
-        if database.get_user(json["username"]):
-            resp = util.makeResponseDict(403, "Username taken")
-        else:
-            database.add_user(json["username"], json["password"])
-            user = database.login_user_object(json["username"], json["password"])
-            resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
-            SESSIONS[user.token] = user
+    json = util.getJson(request)
+    if database.get_user(json["username"]):
+        resp = util.makeResponseDict(403, "Username taken")
+    else:
+        database.add_user(json["username"], json["password"])
+        user = database.login_user_object(json["username"], json["password"])
+        resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
+        SESSIONS[user.token] = user
 
-        return JSON.dumps(resp)
+    return JSON.dumps(resp)
 
 
 @app.route('/test', methods=["POST"])
@@ -80,49 +78,65 @@ def updatepos():
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials"))
 
 
-@app.route('/userspos', methods=["POST"])
+@app.route('/userspos', methods=["GET", "POST"])
 def userspos():
-    json = util.getJson(request)
-    return JSON.dumps(database.get_other_users_pos(json["token"]))
+    if request.method == "POST":
+        json = util.getJson(request)
+        return JSON.dumps(database.get_other_users_pos(json["token"]))
+    else:
+        return JSON.dumps(database.get_all_users())
 
 
 ######################################################
 # MILESTONE 3
 @app.route('/adddevice', methods=["POST"])
 def add_device():
-    if request.method == "POST":
-        json = util.getJson(request)
-        device = database.add_device(json["mac"])
+    json = util.getJson(request)
+    device = database.add_device(json["mac"])
 
-        #Check if there's more in the request to add
-        if json["owner"]:
+    #Check if there's more in the request to add
+    if json["owner"]:
+        user = database.get_user_object(json["owner"])
+        if user:
             database.update_device_owner(json["mac"], json["owner"])
 
-        if json["name"]:
-            database.update_device_name(json["mac"], json["name"])
+    if json["name"]:
+        database.update_device_name(json["mac"], json["name"])
 
-        if json["lat"] and json["lng"]:
-            database.update_device_info(json["mac"], json["lat"], json["lng"])
+    if json["lat"] and json["lng"]:
+        database.update_device_info(json["mac"], json["lat"], json["lng"])
 
     #TODO make real response
     return JSON.dumps(util.makeResponseDict())
 
 
+@app.route('/claimdevice', methods=["POST"])
+def claim_device():
+    json = util.getJson(request)
+
+    device = database.get_device_object(json["mac"])
+    user = database.get_user_object_from_token(json["token"])
+
+    if device and user:
+        database.update_device_owner(json["mac"], user.username)
+
+    # TODO make real response
+    return JSON.dumps(util.makeResponseDict())
+
+
 @app.route('/updatedevice', methods=["POST"])
 def update_device():
-    if request.method == "POST":
-        json = util.getJson(request)
+    json = util.getJson(request)
+    user = database.get_user_object_from_token(json["token"])
+
+    if user:
         device = database.get_device_object(json["mac"])
-
-        if device:
-            if json["owner"] and json["owner"] != device.owner:
-                database.update_device_owner(json["mac"], json["owner"])
-
+        if device.owner == user.username:
             if json["name"] and json["name"] != device.name:
                 database.update_device_name(json["mac"], json["name"])
 
-            if json["lat"] and json["lng"] and json["lat"] != device.lat and json["lng"] != device.lng:
-                database.update_device_info(json["mac"], json["lat"], json["lng"])
+        if json["lat"] and json["lng"] and (json["lat"] != device.lat or json["lng"] != device.lng):
+            database.update_device_info(json["mac"], json["lat"], json["lng"])
 
     #TODO make real response
     return JSON.dumps(util.makeResponseDict())
@@ -143,7 +157,6 @@ def device_info():
 
 @app.route('/alldevices', methods=["GET"])
 def get_all_devices():
-    #json = util.getJson(request)
     return JSON.dumps(database.get_all_devices())
 
 

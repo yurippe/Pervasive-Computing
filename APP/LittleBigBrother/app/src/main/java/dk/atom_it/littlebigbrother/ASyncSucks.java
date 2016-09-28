@@ -14,7 +14,7 @@ import android.os.Handler;
 import java.util.List;
 
 /**
- * Created by Kristian on 9/28/2016.
+ * Created by the wonderful Kristian on 9/28/2016.
  */
 
 public abstract class ASyncSucks {
