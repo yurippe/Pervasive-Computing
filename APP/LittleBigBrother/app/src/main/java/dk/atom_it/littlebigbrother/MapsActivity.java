@@ -76,6 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             map_button.setText("Offline");
         }
 
+        final HashMap<String, Device> deviceHashMap = new HashMap<>();
 
         aSyncSucks = new ASyncSucks(this) {
             @Override
@@ -85,6 +86,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onBluetoothDeviceDiscovery(BluetoothDevice device) {
+                Device foundDevice;
+                if(!deviceHashMap.containsKey(device.getAddress())){
+                    foundDevice = new Device(tthis, token, device.getAddress(), device.getName());
+                    deviceHashMap.put(device.getAddress(), foundDevice);
+                } else {
+                    foundDevice = deviceHashMap.get(device.getAddress());
+                    foundDevice.setLatLng(myMapMarker.getPosition().latitude, myMapMarker.getPosition().longitude);
+                    foundDevice.commit();
+                }
+
                 Toast.makeText(this.activity, "Found Device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
             }
 
