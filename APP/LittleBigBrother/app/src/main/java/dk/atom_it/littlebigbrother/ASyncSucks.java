@@ -27,6 +27,8 @@ public abstract class ASyncSucks {
 
     protected Activity activity;
 
+    private boolean isPaused = false;
+
 
     public ASyncSucks(final Activity activity){
         this.activity = activity;
@@ -87,8 +89,6 @@ public abstract class ASyncSucks {
             filter.addAction(WiFiManager.SCAN_RESULTS_AVAILABLE_ACTION);
             activity.registerReceiver(WIFIReceiver, filter);
 
-            WiFiManager.startScan();
-
 
         } else {
             onWiFiSetupError();
@@ -98,6 +98,7 @@ public abstract class ASyncSucks {
     }
 
     public void startBluetoothDiscovery(){
+        if(this.isPaused){return;}
         if(this.BTAdapter == null){
             onBluetoothStartError();
             return;
@@ -121,6 +122,7 @@ public abstract class ASyncSucks {
     public abstract void onBluetoothDiscoveryCompleted();
 
     public void startWiFiScan(){
+        if(this.isPaused){return;}
         if(this.WiFiManager == null){
             onWiFiStartError();
             return;
@@ -161,6 +163,14 @@ public abstract class ASyncSucks {
             this.activity.unregisterReceiver(this.WIFIReceiver);
         }
 
+    }
+
+    public void pause(){
+        this.isPaused = true;
+    }
+
+    public void resume(){
+        this.isPaused = false;
     }
 
 

@@ -73,6 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(final View view) {
                 Intent toList = new Intent(tthis, Blist.class);
                 tthis.startActivity(toList);
+
             }
         });
 
@@ -152,6 +153,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {/*Find better way to confirm permissions ?*/ return;}
 
         locationManager.removeUpdates(this);
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        if(aSyncSucks != null){
+            aSyncSucks.pause();
+        }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(aSyncSucks != null){
+            aSyncSucks.resume();
+        }
     }
 
     /**

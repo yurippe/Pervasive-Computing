@@ -15,4 +15,15 @@ public class DeviceModel {
         this.name = name;
 
     }
+
+    //MAC addresses uniquely defines this
+    @Override
+    public boolean equals(Object other){
+        if(other instanceof DeviceModel){
+            DeviceModel otha = (DeviceModel) other;
+            return otha.mac.equals(this.mac);
+        } else {
+            return false;
+        }
+    }
 }
