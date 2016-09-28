@@ -141,6 +141,12 @@ def device_info():
         return JSON.dumps(util.makeResponseDict(404, "Device not known"))
 
 
+@app.route('/alldevices', methods=["GET"])
+def get_all_devices():
+    #json = util.getJson(request)
+    return JSON.dumps(database.get_all_devices())
+
+
 ######################################################
 # SETUP
 if __name__ == '__main__':

@@ -98,6 +98,10 @@ public abstract class ASyncSucks {
     }
 
     public void startBluetoothDiscovery(){
+        if(this.BTAdapter == null){
+            onBluetoothStartError();
+            return;
+        }
         this.BTAdapter.startDiscovery();
     }
 
@@ -111,11 +115,16 @@ public abstract class ASyncSucks {
     }
 
     public abstract void onBluetoothSetupError();
+    public abstract void onBluetoothStartError();
     public abstract void onBluetoothDeviceDiscovery(BluetoothDevice device);
     public abstract void onBluetoothDiscoveryStarted();
     public abstract void onBluetoothDiscoveryCompleted();
 
     public void startWiFiScan(){
+        if(this.WiFiManager == null){
+            onWiFiStartError();
+            return;
+        }
         onWiFiScanStarted();
         this.WiFiManager.startScan();
     }
@@ -130,6 +139,7 @@ public abstract class ASyncSucks {
     }
 
     public abstract void onWiFiSetupError();
+    public abstract void onWiFiStartError();
     public abstract void onWiFiScanResults(List<ScanResult> APs);
     public abstract void onWiFiScanStarted();
     public abstract void onWiFiScanCompleted();

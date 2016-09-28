@@ -81,7 +81,7 @@ def add_user(username, password):
         conn = connectDB()
         c = conn.cursor()
 
-        c.execute("INSERT INTO users(user, hpass, displayname) VALUES ('%s', '%s', '%s')"
+        c.execute("INSERT INTO users(user, hpass, displayname) VALUES ('%s', '%s', '%s');"
                   % (username, hpass, username))
         conn.commit()
 
@@ -231,7 +231,7 @@ def get_device(mac):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT name, owner FROM devices WHERE mac = '%s'" % (mac))
+    c.execute("SELECT name, owner FROM devices WHERE mac = '%s';" % (mac))
     device = c.fetchone()
 
     conn.close()
@@ -241,7 +241,7 @@ def get_device(mac):
 def get_device_object(mac):
     device = get_device(mac)
     if device:
-        return Device(device)
+        return Device(mac, device)
     else:
         return None
 
@@ -251,11 +251,24 @@ def get_device_info(mac):
         conn = connectDB()
         c = conn.cursor()
 
-        c.execute("SELECT lastseen, lat, lng FROM deviceinfo WHERE mac = '%s'" % (mac))
+        c.execute("SELECT lastseen, lat, lng FROM deviceinfo WHERE mac = '%s';" % (mac))
         info = c.fetchone()
 
         conn.close()
         return info
+
+
+def get_all_devices():
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT mac, name, owner, lastseen, lat, lng FROM devices NATURAL JOIN deviceinfo;")
+    result = c.fetchall()
+    devices = [{"mac": device[0], "name": device[1], "owner": device[2], "lastseen": device[3],
+                "lat": device[4], "lng": device[5]} for device in result]
+
+    conn.close()
+    return devices
 
 
 def add_device(mac):
@@ -264,7 +277,7 @@ def add_device(mac):
         c = conn.cursor()
 
         c.execute("INSERT INTO devices(mac) VALUES ('%s');" % (mac))
-        c.execute("INSERT INTO deviceinfo(mac, lastseen) VALUES ('%s', '%s')" % (mac, int(time.time())))
+        c.execute("INSERT INTO deviceinfo(mac, lastseen) VALUES ('%s', '%s');" % (mac, int(time.time())))
         conn.commit()
 
         conn.close()
@@ -291,7 +304,7 @@ def update_device_owner(mac, username):
     if user and device:
         conn = connectDB()
         c = conn.cursor()
-        c.execute("UPDATE devices SET owner = '%s' WHERE mac = '%s'" % (user.ID, mac))
+        c.execute("UPDATE devices SET owner = '%s' WHERE mac = '%s';" % (user.ID, mac))
         conn.commit()
         conn.close()
 
@@ -301,7 +314,7 @@ def update_device_info(mac, lat, lng):
         conn = connectDB()
         c = conn.cursor()
 
-        c.execute("UPDATE deviceinfo SET lastseen = '%s', lat = '%s', lng = '%s' WHERE mac = '%s'"
+        c.execute("UPDATE deviceinfo SET lastseen = '%s', lat = '%s', lng = '%s' WHERE mac = '%s';"
                   % (int(time.time()), lat, lng, mac))
         conn.commit()
 
