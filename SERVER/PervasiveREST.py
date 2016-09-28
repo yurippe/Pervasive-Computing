@@ -115,9 +115,12 @@ def update_device():
         device = database.get_device_object(json["mac"])
 
         if device:
-            if json["owner"] and json["owner"] != device.owner:
-                database.update_device_owner(json["mac"], json["owner"])
 
+            try:
+                if json["owner"] and json["owner"] != device.owner:
+                    database.update_device_owner(json["mac"], json["owner"])
+            except: pass
+            
             if json["name"] and json["name"] != device.name:
                 database.update_device_name(json["mac"], json["name"])
 
