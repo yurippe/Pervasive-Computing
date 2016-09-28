@@ -143,7 +143,7 @@ public class Device {
         //TODO: Don't automatically claim...
         claimDevice();
 
-        Endpoint login = new Endpoint(activity, "/updatedevice");
+        Endpoint endpoint = new Endpoint(activity, "/updatedevice");
         JSONObject data = new JSONObject();
         try {
             data.put("token", token);
@@ -156,7 +156,7 @@ public class Device {
             return;
         }
 
-        login.call(data.toString(), new Callback() {
+        endpoint.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 makeToast("Updating bluetooth device failed", Toast.LENGTH_SHORT);
@@ -181,7 +181,7 @@ public class Device {
     }
 
     public void claimDevice(){
-        Endpoint login = new Endpoint(activity, "/claimdevice");
+        Endpoint endpoint = new Endpoint(activity, "/claimdevice");
         JSONObject data = new JSONObject();
         try {
             data.put("token", token);
@@ -190,7 +190,7 @@ public class Device {
             return;
         }
 
-        login.call(data.toString(), new Callback() {
+        endpoint.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 makeToast("Claiming bluetooth device failed", Toast.LENGTH_SHORT);
