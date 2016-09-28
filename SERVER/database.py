@@ -42,6 +42,8 @@ def checkDB():
     c.execute("CREATE TABLE IF NOT EXISTS friends(user1 INTEGER, user2 INTEGER, FOREIGN KEY(user1) REFERENCES users(userid), FOREIGN KEY(user2) REFERENCES users(userid));")
     c.execute("CREATE TABLE IF NOT EXISTS blocked(user1 INTEGER, user2 INTEGER, FOREIGN KEY(user1) REFERENCES users(userid), FOREIGN KEY(user2) REFERENCES users(userid));")
     #Milestone 3
+    c.execute("CREATE TABLE IF NOT EXISTS devices(mac VARCHAR(23) PRIMARY KEY, name VARCHAR(128), owner INTEGER, FOREIGN KEY(owner) REFERENCES users(userid));")
+    c.execute("CREATE TABLE IF NOT EXISTS deviceinfo(mac VARCHAR(23), lastseen INTEGER DEFAULT 0, lat REAL DEFAULT 0, lng REAL DEFAULT 0, FOREIGN KEY(mac) REFERENCES devices(mac));")
     conn.commit()
 
     #Check if test user is in database
