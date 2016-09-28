@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -44,15 +46,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private LocationManager locationManager;
     private BluetoothAdapter BTadapter;
+    private WifiManager WiFiManager;
 
     private String token = "";
     private String online = "true";
     private Marker myMapMarker;
-    private BroadcastReceiver mReceiver;
+    private BroadcastReceiver BTReceiver;
+    private BroadcastReceiver WIFIReceiver;
 
     private final MapsActivity tthis = this;
     private Thread userupdates;
-    private Thread bluetoothupdates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //START OF BLUETOOTH
         BTadapter = BluetoothAdapter.getDefaultAdapter();
         if(BTadapter != null) { //If it is null, we probably dont have bluetooth
-            mReceiver = new BroadcastReceiver() {
+            BTReceiver = new BroadcastReceiver() {
                 public void onReceive(Context context, Intent intent) {
                     String action = intent.getAction();
 
@@ -92,6 +95,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                         //bluetooth device found
                         final BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                        //TODO: Do something with found bluetooth device here
                         tthis.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -103,24 +108,62 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             };
 
-            bluetoothupdates = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    IntentFilter filter = new IntentFilter();
 
-                    filter.addAction(BluetoothDevice.ACTION_FOUND);
-                    filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-                    filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            IntentFilter filter = new IntentFilter();
 
-                    registerReceiver(mReceiver, filter);
-                    BTadapter.startDiscovery();
-                }
-            });
-            bluetoothupdates.start();
+            filter.addAction(BluetoothDevice.ACTION_FOUND);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
+            registerReceiver(BTReceiver, filter);
+            BTadapter.startDiscovery();
+
         } else {
             Toast.makeText(tthis, "Couldn't access Bluetooth.", Toast.LENGTH_LONG).show();
         }
         //END OF BLUETOOTH
+
+        //START OF WIFI
+        WiFiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        if(WiFiManager != null){
+
+            WIFIReceiver = new BroadcastReceiver() {
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
+
+                    if(WiFiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)){
+
+                        for(ScanResult res : WiFiManager.getScanResults()){
+                            final ScanResult rres = res;
+
+                            //TODO do something with wifi scan results here
+                            tthis.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(tthis, "Found network: " + rres.SSID + " - " + rres.BSSID, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                        }
+                        WiFiManager.startScan();
+                    }
+
+                }
+
+            };
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(WiFiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+            registerReceiver(WIFIReceiver, filter);
+
+            WiFiManager.startScan();
+
+        } else {
+            Toast.makeText(tthis, "Couldn't access WiFi", Toast.LENGTH_LONG).show();
+        }
+
+
+        //END OF WIFI
     }
 
     @Override
@@ -278,11 +321,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(userupdates != null){
             userupdates.interrupt();
         }
-        if(bluetoothupdates != null){
-            bluetoothupdates.interrupt();
+        if(BTReceiver != null){
+            unregisterReceiver(BTReceiver);
         }
-        if(mReceiver != null){
-            unregisterReceiver(mReceiver);
+        if(WIFIReceiver != null){
+            unregisterReceiver(WIFIReceiver);
         }
         Intent intent = new Intent(this, Login.class);
         this.startActivity(intent);
