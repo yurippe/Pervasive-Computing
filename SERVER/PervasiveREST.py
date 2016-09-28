@@ -104,6 +104,9 @@ def add_device():
         if json["lat"] and json["lng"]:
             database.update_device_info(json["mac"], json["lat"], json["lng"])
 
+    #TODO make real response
+    return JSON.dumps(util.makeResponseDict())
+
 
 @app.route('/updatedevice', methods=["POST"])
 def update_device():
@@ -120,6 +123,9 @@ def update_device():
 
             if json["lat"] and json["lng"] and json["lat"] != device.lat and json["lng"] != device.lng:
                 database.update_device_info(json["mac"], json["lat"], json["lng"])
+
+    #TODO make real response
+    return JSON.dumps(util.makeResponseDict())
 
 
 @app.route('/deviceinfo', methods=["POST"])

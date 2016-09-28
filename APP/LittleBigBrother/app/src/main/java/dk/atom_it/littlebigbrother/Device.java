@@ -1,9 +1,6 @@
 package dk.atom_it.littlebigbrother;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.design.widget.Snackbar;
-import android.view.View;
+import android.app.Activity;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -25,7 +22,7 @@ public class Device {
     private String address;
     private String name;
 
-    private final Context context;
+    private final Activity activity;
     private final String token;
 
     private String owner;
@@ -33,9 +30,9 @@ public class Device {
     private double lat;
     private double lng;
 
-    public Device(final Context icontext, final String itoken, final String iaddress, final String iname){
+    public Device(final Activity activity, final String itoken, final String iaddress, final String iname){
         this.token = itoken;
-        this.context = icontext;
+        this.activity = activity;
 
         this.address = iaddress;
 
@@ -43,11 +40,11 @@ public class Device {
         data.put("token", token);
         data.put("mac", iaddress);
 
-        Endpoint login = new Endpoint(context, "/deviceinfo");
+        Endpoint login = new Endpoint(this.activity, "/deviceinfo");
         login.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(context, "Checking server about blueetooth device failed", Toast.LENGTH_SHORT).show();
+                makeToast("Checking server about blueetooth device failed", Toast.LENGTH_SHORT);
                 setName(iname);
             }
 
@@ -95,19 +92,23 @@ public class Device {
     }
 
     public void commit(){
-        HashMap<String, String> data = new HashMap<>();
-        data.put("token", token);
-        data.put("mac", address);
-        data.put("name", name);
-        data.put("owner", owner);
-        data.put("lat", "" + lat);
-        data.put("lng", "" + lng);
 
-        Endpoint login = new Endpoint(context, "/updatedevice");
+        Endpoint login = new Endpoint(activity, "/updatedevice");
+        JSONObject data = new JSONObject();
+        try {
+            data.put("token", token);
+            data.put("mac", address);
+            data.put("name", name);
+            data.put("owner", owner);
+            data.put("lat", "" + lat);
+            data.put("lng", "" + lng);
+        } catch (JSONException e){
+
+        }
         login.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(context, "Updating bluetooth device failed", Toast.LENGTH_SHORT).show();
+                makeToast("Updating bluetooth device failed", Toast.LENGTH_SHORT);
             }
 
             @Override
@@ -115,13 +116,13 @@ public class Device {
                 try {
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     if(jsonresp.getInt("status") != 200){
-                        Toast.makeText(context, "Updating bluetooth device failed", Toast.LENGTH_SHORT).show();
+                        makeToast("Updating bluetooth device failed", Toast.LENGTH_SHORT);
                     } else {
-                        Toast.makeText(context, "Update successful", Toast.LENGTH_SHORT).show();
+                        makeToast("Update successful", Toast.LENGTH_SHORT);
                     }
 
                 } catch (JSONException e) {
-                    Toast.makeText(context, "Couldn't send bluetooth info to server", Toast.LENGTH_SHORT).show();
+                    makeToast("Couldn't send bluetooth info to server", Toast.LENGTH_SHORT);
                 }
                 response.close(); //Very important
             }
@@ -130,7 +131,14 @@ public class Device {
 
 
 
-
+    public void makeToast(final String msg, final int length){
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(activity, msg, length).show();
+            }
+        });
+    }
 
 
 

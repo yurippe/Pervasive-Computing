@@ -88,7 +88,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onBluetoothDeviceDiscovery(BluetoothDevice device) {
                 Device foundDevice;
                 if(!deviceHashMap.containsKey(device.getAddress())){
-                    foundDevice = new Device(tthis, token, device.getAddress(), device.getName());
+                    foundDevice = new Device(this.activity, token, device.getAddress(), device.getName());
                     deviceHashMap.put(device.getAddress(), foundDevice);
                 } else {
                     foundDevice = deviceHashMap.get(device.getAddress());
@@ -96,7 +96,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     foundDevice.commit();
                 }
 
-                Toast.makeText(this.activity, "Found Device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this.activity, "Found Device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -106,7 +106,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onBluetoothDiscoveryCompleted() {
-                this.startBluetoothDiscovery();
+                this.startBluetoothDiscovery(10000);
             }
 
             @Override
@@ -116,7 +116,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onWiFiScanResults(List<ScanResult> APs) {
-                Toast.makeText(this.activity, "Found " + APs.size() + " networks " + (APs.size()>0 ? "(e.x. " + APs.get(0).SSID + " - " + APs.get(0).BSSID + ")" : ""), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this.activity, "Found " + APs.size() + " networks " + (APs.size()>0 ? "(e.x. " + APs.get(0).SSID + " - " + APs.get(0).BSSID + ")" : ""), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -126,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onWiFiScanCompleted() {
-                this.startWiFiScan();
+                this.startWiFiScan(10000);
             }
         };
 
@@ -232,7 +232,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Send movement to server
         if(token != null){
-            Toast.makeText(tthis, "hej2!", Toast.LENGTH_SHORT).show();
             Endpoint loc = new Endpoint(this, "/updatepos");
             HashMap<String, String> data = new HashMap<>();
 
