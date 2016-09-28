@@ -1,7 +1,11 @@
 package dk.atom_it.littlebigbrother;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -39,13 +43,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private LocationManager locationManager;
+    private BluetoothAdapter BTadapter;
 
     private String token = "";
     private String online = "true";
     private Marker myMapMarker;
+    private BroadcastReceiver mReceiver;
 
-    final MapsActivity tthis = this;
-    Thread userupdates;
+    private final MapsActivity tthis = this;
+    private Thread userupdates;
+    private Thread bluetoothupdates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             map_button.setText("Offline");
         }
+
+        //START OF BLUETOOTH
+        BTadapter = BluetoothAdapter.getDefaultAdapter();
+        if(BTadapter != null) { //If it is null, we probably dont have bluetooth
+            mReceiver = new BroadcastReceiver() {
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
+
+                    if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+
+
+                    } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+
+                        //Restart the discovery process
+                        BTadapter.startDiscovery();
+
+                    } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                        //bluetooth device found
+                        final BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        tthis.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(tthis, "Found device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    }
+                }
+            };
+
+            bluetoothupdates = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    IntentFilter filter = new IntentFilter();
+
+                    filter.addAction(BluetoothDevice.ACTION_FOUND);
+                    filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+                    filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
+                    registerReceiver(mReceiver, filter);
+                    BTadapter.startDiscovery();
+                }
+            });
+            bluetoothupdates.start();
+        } else {
+            Toast.makeText(tthis, "Couldn't access Bluetooth.", Toast.LENGTH_LONG).show();
+        }
+        //END OF BLUETOOTH
     }
 
     @Override
@@ -222,6 +277,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         if(userupdates != null){
             userupdates.interrupt();
+        }
+        if(bluetoothupdates != null){
+            bluetoothupdates.interrupt();
+        }
+        if(mReceiver != null){
+            unregisterReceiver(mReceiver);
         }
         Intent intent = new Intent(this, Login.class);
         this.startActivity(intent);

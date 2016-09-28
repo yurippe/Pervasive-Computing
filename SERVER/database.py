@@ -52,6 +52,8 @@ def checkDB():
         add_user("Nicolai", "123")
     if not get_user("Matus"):
         add_user("Matus", "123")
+    if not get_user("a"):
+        add_user("a", "a")
 
     #Milestone 3
     c.execute("CREATE TABLE IF NOT EXISTS devices(mac VARCHAR(23) PRIMARY KEY, name VARCHAR(128), owner INTEGER, FOREIGN KEY(owner) REFERENCES users(userid))")
