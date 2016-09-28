@@ -45,6 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker myMapMarker;
 
     final MapsActivity tthis = this;
+    Thread userupdates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +102,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             System.err.println("Exception! No permission");
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();
         }
-
         if(token != null){
             Toast.makeText(tthis, "hdaf!" + token, Toast.LENGTH_SHORT).show();
-            Thread userupdates = new Thread(new Runnable() {
+            userupdates = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     HashMap<Integer, User> users = new HashMap<>();
@@ -137,7 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 try {
                                     Thread.sleep(10000);
                                 } catch (Exception e) {
-                                    Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                             }
@@ -148,7 +148,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         try {
                             Thread.sleep(20000);
                         } catch (Exception e) {
-                            Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     }
@@ -219,6 +219,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     response.close(); //Very important
                 }
             });
+        }
+        if(userupdates != null){
+            userupdates.interrupt();
         }
         Intent intent = new Intent(this, Login.class);
         this.startActivity(intent);
