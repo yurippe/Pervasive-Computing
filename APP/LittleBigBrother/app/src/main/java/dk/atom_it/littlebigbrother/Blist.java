@@ -18,6 +18,9 @@ import dk.atom_it.littlebigbrother.data.DeviceAdapter;
 
 public class Blist extends AppCompatActivity {
 
+    //For questions:
+    //https://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView
+
     private ArrayList<DeviceModel> devices;
     private DeviceAdapter adapter;
     private ASyncSucks aSyncSucks;
