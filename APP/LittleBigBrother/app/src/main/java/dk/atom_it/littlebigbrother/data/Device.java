@@ -1,4 +1,4 @@
-package dk.atom_it.littlebigbrother;
+package dk.atom_it.littlebigbrother.data;
 
 import android.app.Activity;
 import android.widget.Toast;
@@ -30,7 +30,7 @@ public class Device {
     private double lat;
     private double lng;
 
-    public Device(final Activity activity, final String itoken, final String iaddress, final String iname){
+    public Device(final Activity activity, final String itoken, final String iaddress, final String iname, final Double lat, final Double lng){
         this.token = itoken;
         this.activity = activity;
 

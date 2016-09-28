@@ -1,17 +1,11 @@
 package dk.atom_it.littlebigbrother;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -39,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import dk.atom_it.littlebigbrother.api.Endpoint;
+import dk.atom_it.littlebigbrother.data.Device;
+import dk.atom_it.littlebigbrother.data.User;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;

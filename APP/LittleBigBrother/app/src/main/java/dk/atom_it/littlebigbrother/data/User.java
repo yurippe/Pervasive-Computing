@@ -1,4 +1,4 @@
-package dk.atom_it.littlebigbrother;
+package dk.atom_it.littlebigbrother.data;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -6,6 +6,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import dk.atom_it.littlebigbrother.MapsActivity;
 
 /**
  * An object representing one singular user
