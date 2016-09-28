@@ -150,7 +150,7 @@ def device_info():
 
     if device:
         data = {"name": device.name, "owner": device.owner, "lastseen": device.last_activity, "lat": device.lat, "lng": device.lng}
-        return JSON.dumps(util.makeResponseDict(data))
+        return JSON.dumps(util.makeResponseDict(data=data))
     else:
         return JSON.dumps(util.makeResponseDict(404, "Device not known"))
 
