@@ -95,15 +95,15 @@ def add_device():
     device = database.add_device(json["mac"])
 
     #Check if there's more in the request to add
-    if json["owner"]:
+    if json.has_key("owner"):
         user = database.get_user_object(json["owner"])
         if user:
             database.update_device_owner(json["mac"], user.ID)
 
-    if json["name"]:
+    if json.has_key("name"):
         database.update_device_name(json["mac"], json["name"])
 
-    if json["lat"] and json["lng"]:
+    if json.has_key("lat") and json.has_key("lng"):
         database.update_device_info(json["mac"], json["lat"], json["lng"])
 
     #TODO make real response
@@ -153,7 +153,12 @@ def device_info():
     device = database.get_device_object(json["mac"])
 
     if device:
-        data = {"name": device.name, "owner": device.owner.username, "lastseen": device.last_activity, "lat": device.lat, "lng": device.lng}
+        if device.owner == None:
+            dOwner = "unknown"
+        else:
+            dOwner = device.owner.username
+
+        data = {"name": device.name, "owner": dOwner, "lastseen": device.last_activity, "lat": device.lat, "lng": device.lng}
         return JSON.dumps(util.makeResponseDict(data=data))
     else:
         return JSON.dumps(util.makeResponseDict(404, "Device not known"))
