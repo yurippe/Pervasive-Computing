@@ -194,6 +194,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, this);
+            Location lastknown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(lastknown == null){
+                lastknown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            if(lastknown != null) {
+                onLocationChanged(lastknown);
+            }
+
         } catch(SecurityException e) {
             System.err.println("Exception! No permission");
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();

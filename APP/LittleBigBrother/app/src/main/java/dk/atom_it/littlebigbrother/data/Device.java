@@ -62,7 +62,11 @@ public class Device {
                 try {
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     if(jsonresp.getInt("status") == 404){
-                        setName(iname);
+                        if(iname == null || iname.equals("")){
+                            setName(address);
+                        } else {
+                            setName(iname);
+                        }
                         addDevice();
                         return;
                     } else if(jsonresp.getInt("status") == 200){
@@ -74,7 +78,11 @@ public class Device {
                     }
 
                 } catch (JSONException e) {
-                    setName(iname);
+                    if(iname == null || iname.equals("")){
+                        setName(address);
+                    } else {
+                        setName(iname);
+                    }
                     return;
                 }
 
@@ -116,7 +124,7 @@ public class Device {
         endpoint.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                makeToast("Adding bluetooth device failed", Toast.LENGTH_SHORT);
+                makeToast("Adding bluetooth device failed 1", Toast.LENGTH_SHORT);
             }
 
             @Override
@@ -124,7 +132,7 @@ public class Device {
                 try {
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     if(jsonresp.getInt("status") != 200){
-                        makeToast("Adding bluetooth device failed", Toast.LENGTH_SHORT);
+                        makeToast("Adding bluetooth device failed 2", Toast.LENGTH_SHORT);
                         return;
                     }
 
@@ -158,7 +166,7 @@ public class Device {
         endpoint.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                makeToast("Updating bluetooth device failed", Toast.LENGTH_SHORT);
+                makeToast("Updating bluetooth device failed 1", Toast.LENGTH_SHORT);
             }
 
             @Override
@@ -166,7 +174,7 @@ public class Device {
                 try {
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     if(jsonresp.getInt("status") != 200){
-                        makeToast("Updating bluetooth device failed", Toast.LENGTH_SHORT);
+                        makeToast("Updating bluetooth device failed 2", Toast.LENGTH_SHORT);
                     } else {
                         //makeToast("Update successful", Toast.LENGTH_SHORT);
                     }
@@ -192,7 +200,7 @@ public class Device {
         endpoint.call(data.toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                makeToast("Claiming bluetooth device failed", Toast.LENGTH_SHORT);
+                makeToast("Claiming bluetooth device failed 1", Toast.LENGTH_SHORT);
             }
 
             @Override
@@ -200,7 +208,7 @@ public class Device {
                 try {
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     if(jsonresp.getInt("status") != 200){
-                        makeToast("Claiming bluetooth device failed", Toast.LENGTH_SHORT);
+                        makeToast("Claiming bluetooth device failed 2", Toast.LENGTH_SHORT);
                     } else {
                         //makeToast("Update successful", Toast.LENGTH_SHORT);
                     }
