@@ -243,7 +243,7 @@ def get_device(mac):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT name, user FROM devices INNER JOIN users ON userid = owner WHERE mac = '%s';" % (mac))
+    c.execute("SELECT name, user FROM devices LEFT JOIN users ON userid = owner WHERE mac = '%s';" % (mac))
     device = c.fetchone()
 
     conn.close()

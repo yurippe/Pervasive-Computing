@@ -98,7 +98,7 @@ def add_device():
     if json["owner"]:
         user = database.get_user_object(json["owner"])
         if user:
-            database.update_device_owner(json["mac"], json["owner"])
+            database.update_device_owner(json["mac"], user.ID)
 
     if json["name"]:
         database.update_device_name(json["mac"], json["name"])
@@ -131,12 +131,16 @@ def update_device():
 
     if user:
         device = database.get_device_object(json["mac"])
-        if device.owner == user.username:
-            if json["name"] and json["name"] != device.name:
-                database.update_device_name(json["mac"], json["name"])
+        if device:
+            if device.owner == user.username:
+                if json["name"] and json["name"] != device.name:
+                    database.update_device_name(json["mac"], json["name"])
 
-        if json["lat"] and json["lng"] and (json["lat"] != device.lat or json["lng"] != device.lng):
-            database.update_device_info(json["mac"], json["lat"], json["lng"])
+            if json["lat"] and json["lng"] and (json["lat"] != device.lat or json["lng"] != device.lng):
+                database.update_device_info(json["mac"], json["lat"], json["lng"])
+        else:
+            device = database.add_device(json["mac"])
+
 
     #TODO make real response
     return JSON.dumps(util.makeResponseDict())
@@ -149,7 +153,7 @@ def device_info():
     device = database.get_device_object(json["mac"])
 
     if device:
-        data = {"name": device.name, "owner": device.owner, "lastseen": device.last_activity, "lat": device.lat, "lng": device.lng}
+        data = {"name": device.name, "owner": device.owner.username, "lastseen": device.last_activity, "lat": device.lat, "lng": device.lng}
         return JSON.dumps(util.makeResponseDict(data=data))
     else:
         return JSON.dumps(util.makeResponseDict(404, "Device not known"))
