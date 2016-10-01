@@ -5,7 +5,6 @@ import android.net.wifi.ScanResult;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -15,6 +14,7 @@ import java.util.List;
 
 import dk.atom_it.littlebigbrother.data.DeviceModel;
 import dk.atom_it.littlebigbrother.data.DeviceAdapter;
+import dk.atom_it.littlebigbrother.threading.ASyncSucks;
 
 public class Blist extends AppCompatActivity {
 

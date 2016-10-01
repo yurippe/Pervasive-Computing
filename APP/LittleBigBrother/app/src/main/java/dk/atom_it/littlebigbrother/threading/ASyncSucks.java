@@ -1,4 +1,4 @@
-package dk.atom_it.littlebigbrother;
+package dk.atom_it.littlebigbrother.threading;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
