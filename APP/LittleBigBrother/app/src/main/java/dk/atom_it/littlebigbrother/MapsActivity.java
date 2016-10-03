@@ -35,12 +35,16 @@ import java.util.List;
 import dk.atom_it.littlebigbrother.api.Endpoint;
 import dk.atom_it.littlebigbrother.data.Device;
 import dk.atom_it.littlebigbrother.data.User;
+import dk.atom_it.littlebigbrother.managers.BluetoothListener;
+import dk.atom_it.littlebigbrother.managers.BluetoothManager;
+import dk.atom_it.littlebigbrother.managers.WiFiListener;
 import dk.atom_it.littlebigbrother.threading.ASyncSucks;
+import dk.atom_it.littlebigbrother.threading.NetworkingSucks;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, BluetoothListener, WiFiListener {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -52,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final MapsActivity tthis = this;
     private Thread userupdates;
 
-    private ASyncSucks aSyncSucks;
+    private NetworkingSucks networkingSucks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         final HashMap<String, Device> deviceHashMap = new HashMap<>();
 
-        aSyncSucks = new ASyncSucks(this) {
+        /*aSyncSucks = new ASyncSucks(this) {
             @Override
             public void onBluetoothSetupError() {
                 Toast.makeText(this.activity, "Could not access Bluetooth on this device", Toast.LENGTH_LONG).show();
@@ -146,6 +150,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         aSyncSucks.startWiFiScan();
         aSyncSucks.startBluetoothDiscovery();
+        */
+
+        BluetoothManager.getInstance(this).scanBluetooth(this);
+        networkingSucks = new NetworkingSucks(this);
 
     }
 
@@ -159,17 +167,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onPause(){
         super.onPause();
-        if(aSyncSucks != null){
-            aSyncSucks.pause();
-        }
+
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        if(aSyncSucks != null){
-            aSyncSucks.resume();
-        }
     }
 
     /**
@@ -269,24 +272,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Send movement to server
         if(token != null){
-            Endpoint loc = new Endpoint(this, "/updatepos");
-            HashMap<String, String> data = new HashMap<>();
-
-            data.put("token", token);
-            data.put("lat", "" + pos.latitude);
-            data.put("lng", "" + pos.longitude);
-            JSONObject json = new JSONObject(data);
-            loc.call(json.toString(), new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Toast.makeText(tthis, "Could not update server on our location", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    response.close();
-                }
-            });
+            networkingSucks.updatePosition(token, pos.latitude, pos.longitude);
         }
 
         //Update marker
@@ -327,9 +313,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             userupdates.interrupt();
         }
 
-        aSyncSucks.unregisterAllReceivers();
-        aSyncSucks = null;
-
         Intent intent = new Intent(this, Login.class);
         this.startActivity(intent);
     }
@@ -346,6 +329,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onProviderDisabled(String s) {
+
+    }
+
+
+    @Override
+    public void onBluetoothScanStarted() {
+
+    }
+
+    @Override
+    public void onBluetoothScanResults(List<BluetoothDevice> results) {
+        for(BluetoothDevice device : results){
+            Toast.makeText(this, "Found device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onBluetoothScanCompleted() {
+        BluetoothManager.getInstance(this).scanBluetooth(this, 3000);
+    }
+
+    @Override
+    public void onBluetoothError() {
+
+    }
+
+    @Override
+    public void onWiFiScanStarted() {
+
+    }
+
+    @Override
+    public void onWiFiScanResults(List<ScanResult> results) {
+
+    }
+
+    @Override
+    public void onWiFiScanCompleted() {
+
+    }
+
+    @Override
+    public void onWiFiError() {
 
     }
 }
