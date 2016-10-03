@@ -1,6 +1,7 @@
 package dk.atom_it.littlebigbrother;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,9 +15,11 @@ import java.util.List;
 
 import dk.atom_it.littlebigbrother.data.DeviceModel;
 import dk.atom_it.littlebigbrother.data.DeviceAdapter;
+import dk.atom_it.littlebigbrother.managers.BluetoothListener;
+import dk.atom_it.littlebigbrother.managers.BluetoothManager;
 import dk.atom_it.littlebigbrother.threading.ASyncSucks;
 
-public class Blist extends AppCompatActivity {
+public class Blist extends AppCompatActivity implements BluetoothListener {
 
     //For questions:
     //https://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView
@@ -36,72 +39,44 @@ public class Blist extends AppCompatActivity {
         adapter = new DeviceAdapter(this, devices);
         listBluetooth.setAdapter(adapter);
 
-        aSyncSucks = new ASyncSucks(this) {
-            @Override
-            public void onBluetoothSetupError() {
-                Toast.makeText(this.activity, "Could not access Bluetooth on this device", Toast.LENGTH_LONG).show();
-            }
+        BluetoothManager.getInstance(this).scanBluetooth(this);
 
-            @Override
-            public void onBluetoothStartError() {
-                Toast.makeText(this.activity, "Could not access Bluetooth on this device", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onBluetoothDeviceDiscovery(BluetoothDevice device) {
-                DeviceModel devicemodel = new DeviceModel(device.getAddress(), device.getName());
-                if(devices.contains(devicemodel)){
-                    return;
-                }
-                adapter.add(devicemodel);
-            }
-
-            @Override
-            public void onBluetoothDiscoveryStarted() {
-                adapter.clear();
-            }
-
-            @Override
-            public void onBluetoothDiscoveryCompleted() {
-                Toast.makeText(this.activity, "Scan complete", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onWiFiSetupError() {
-
-            }
-
-            @Override
-            public void onWiFiStartError() {
-
-            }
-
-            @Override
-            public void onWiFiScanResults(List<ScanResult> APs) {
-
-            }
-
-            @Override
-            public void onWiFiScanStarted() {
-
-            }
-
-            @Override
-            public void onWiFiScanCompleted() {
-
-            }
-        };
-
-        aSyncSucks.startBluetoothDiscovery();
 
         Button refreshButton = (Button) findViewById(R.id.bluetooth_refresh);
+        final Blist tthis = this;
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(aSyncSucks != null) {
-                    aSyncSucks.startBluetoothDiscovery();
-                }
+                BluetoothManager.getInstance(tthis).scanBluetooth(tthis);
             }
         });
+    }
+
+    @Override
+    public void onBluetoothScanStarted() {
+        adapter.clear();
+        Toast.makeText(this, "Scan started", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onBluetoothScanResults(List<BluetoothDevice> results) {
+
+        for(BluetoothDevice device : results) {
+            DeviceModel devicemodel = new DeviceModel(device.getAddress(), device.getName());
+            if (devices.contains(devicemodel)) {
+                return;
+            }
+            adapter.add(devicemodel);
+        }
+    }
+
+    @Override
+    public void onBluetoothScanCompleted() {
+        Toast.makeText(this, "Scan complete", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onBluetoothError() {
+        Toast.makeText(this, "Could not access Bluetooth on this device", Toast.LENGTH_LONG).show();
     }
 }
