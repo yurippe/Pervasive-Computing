@@ -11,9 +11,9 @@ import java.util.List;
 public interface BluetoothListener {
 
 
-        public void onScanStarted();
-        public void onScanResults(List<BluetoothDevice> results);
-        public void onScanCompleted();
-        public void onError();
+        public void onBluetoothScanStarted();
+        public void onBluetoothScanResults(List<BluetoothDevice> results);
+        public void onBluetoothScanCompleted();
+        public void onBluetoothError();
 
 }

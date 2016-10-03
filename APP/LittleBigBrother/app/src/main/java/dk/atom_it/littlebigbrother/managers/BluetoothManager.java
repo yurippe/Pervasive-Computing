@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -105,21 +106,21 @@ public class BluetoothManager {
 
     private void onBluetoothScanResults(){
         for(BluetoothListener listener : listeners){
-            listener.onScanResults(results);
+            listener.onBluetoothScanResults(results);
         }
     }
 
     private void onBluetoothDiscoveryCompleted(){
         onBluetoothScanResults();
         for(BluetoothListener listener : listeners){
-            listener.onScanCompleted();
+            listener.onBluetoothScanCompleted();
         }
         scanning = false;
     }
 
     public void scanBluetooth(BluetoothListener listener){
         if(!checkIntegrity()){
-            listener.onError();
+            listener.onBluetoothError();
             return;
         }
         if(listeners == null){
@@ -127,15 +128,30 @@ public class BluetoothManager {
         }
         if(scanning){
             listeners.add(listener);
-            listener.onScanStarted();
+            listener.onBluetoothScanStarted();
         } else {
             onBluetoothDiscoveryStarted();
             BTAdapter.startDiscovery();
             listeners = new HashSet<>();
             listeners.add(listener);
-            listener.onScanStarted();
+            listener.onBluetoothScanStarted();
         }
     }
+
+    public void scanBluetooth(final BluetoothListener listener, int delay){
+        Delay(delay, new Runnable() {
+            @Override
+            public void run() {
+                scanBluetooth(listener);
+            }
+        });
+    }
+
+    private void Delay(int milliseconds, Runnable runnable){
+        Handler handler = new Handler();
+        handler.postDelayed(runnable, milliseconds);
+    }
+
 
 
 }

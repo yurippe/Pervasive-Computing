@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -84,20 +85,20 @@ public class WiFiManager {
 
     private void onWiFiScanResults(List<ScanResult> results){
         for(WiFiListener listener : listeners){
-            listener.onScanResults(results);
+            listener.onWiFiScanResults(results);
         }
     }
 
     private void onWiFiScanCompleted(){
         for(WiFiListener listener : listeners){
-            listener.onScanCompleted();
+            listener.onWiFiScanCompleted();
         }
         scanning = false;
     }
 
     public void scanWifi(WiFiListener listener){
         if(!checkIntegrity()){
-            listener.onError();
+            listener.onWiFiError();
             return;
         }
         if(listeners == null){
@@ -105,14 +106,28 @@ public class WiFiManager {
         }
         if(scanning){
             listeners.add(listener);
-            listener.onScanStarted();
+            listener.onWiFiScanStarted();
         } else {
             onWiFiScanStarted();
             WiFiManager.startScan();
             listeners = new HashSet<>();
             listeners.add(listener);
-            listener.onScanStarted();
+            listener.onWiFiScanStarted();
         }
+    }
+
+    public void scanWifi(final WiFiListener listener, int delay){
+        Delay(delay, new Runnable() {
+            @Override
+            public void run() {
+                scanWifi(listener);
+            }
+        });
+    }
+
+    private void Delay(int milliseconds, Runnable runnable){
+        Handler handler = new Handler();
+        handler.postDelayed(runnable, milliseconds);
     }
 
 

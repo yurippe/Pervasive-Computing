@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface WiFiListener {
 
-    public void onScanStarted();
-    public void onScanResults(List<ScanResult> results);
-    public void onScanCompleted();
-    public void onError();
+    public void onWiFiScanStarted();
+    public void onWiFiScanResults(List<ScanResult> results);
+    public void onWiFiScanCompleted();
+    public void onWiFiError();
 }
