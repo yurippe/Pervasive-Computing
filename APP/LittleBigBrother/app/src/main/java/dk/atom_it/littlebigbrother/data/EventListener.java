@@ -22,6 +22,7 @@ public class EventListener {
     }
 
     public void notify(int eventType){
+
     }
 
     public String toJson(){
