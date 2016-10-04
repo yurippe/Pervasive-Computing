@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import dk.atom_it.littlebigbrother.Jheme.JhemeInterpreter;
@@ -25,6 +26,8 @@ public class AddEventListener extends AppCompatActivity {
         //Set the dropdown menu for event types
         final Spinner eventTypeSpinner = (Spinner) findViewById(R.id.event_type_spinner);
         final ArrayAdapter<CharSequence> eventTypeAdapter = ArrayAdapter.createFromResource(this, R.array.event_types, android.R.layout.simple_spinner_item);
+        final TextView jhemeCode = (TextView) findViewById(R.id.event_code);
+
         eventTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         eventTypeSpinner.setAdapter(eventTypeAdapter);
 
@@ -34,7 +37,11 @@ public class AddEventListener extends AppCompatActivity {
             public void onClick(View view) {
                 //Toast.makeText(tthis, "Selected: " + eventTypeAdapter.getItem(eventTypeSpinner.getSelectedItemPosition()), Toast.LENGTH_LONG).show();
                 JhemeInterpreter jheme = new JhemeInterpreter(tthis);
-                jheme.eval("(toast \"hello world\")");
+                try {
+                    jheme.eval(jhemeCode.getText().toString());
+                } catch (Exception e){
+                    Toast.makeText(tthis, "Not valid Jheme code", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }

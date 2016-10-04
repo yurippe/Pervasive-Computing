@@ -17,9 +17,18 @@ public class JhemeToast extends SchemeProcedure {
 
     @Override
     public EvaluationResult execute(SchemeObject[] args, Interpreter i, Environment e){
-        i.assertArgCountEqual(this, args, 1);
+
+        StringBuilder sb = new StringBuilder();
+        for(SchemeObject arg : args){
+            if (arg instanceof SchemeString){
+                sb.append(((SchemeString) arg).getValue());
+            } else {
+                sb.append(arg.getStringValue());
+            }
+        }
+
         JhemeInterpreter interp = (JhemeInterpreter) i;
-        Toast.makeText(interp.getActivity(), ((SchemeString) args[0]).getValue(), Toast.LENGTH_LONG).show();
+        Toast.makeText(interp.getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
         return new EvaluationResult(e);
     }
 }

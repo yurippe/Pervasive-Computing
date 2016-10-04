@@ -42,10 +42,10 @@
         android:paddingBottom="40px">
 
         <TextView
-            android:text="TextView"
+            android:text="Jheme Code"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/textView5"
+            android:id="@+id/jheme_code_label"
             android:layout_weight="1" />
 
         <EditText
@@ -54,7 +54,8 @@
             android:inputType="textMultiLine"
             android:ems="10"
             android:id="@+id/event_code"
-            android:layout_weight="1" />
+            android:layout_weight="2.18"
+            android:text='(toast "1 + 1 = " (+ 1 1))' />
     </LinearLayout>
 
     <Button
