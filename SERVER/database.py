@@ -3,6 +3,7 @@ import time
 import Config
 from User import User
 from Device import Device
+from Note import Note
 #import the SQL lite database
 import sqlite3
 
@@ -44,25 +45,22 @@ def checkDB():
     #Milestone 3
     c.execute("CREATE TABLE IF NOT EXISTS devices(mac VARCHAR(23) PRIMARY KEY, name VARCHAR(128), owner INTEGER, FOREIGN KEY(owner) REFERENCES users(userid));")
     c.execute("CREATE TABLE IF NOT EXISTS deviceinfo(mac VARCHAR(23), lastseen INTEGER DEFAULT 0, lat REAL DEFAULT 0, lng REAL DEFAULT 0, FOREIGN KEY(mac) REFERENCES devices(mac));")
+    #Milestone 4
+    c.execute("CREATE TABLE IF NOT EXISTS notes(noteid INTEGER PRIMARY KEY AUTOINCREMENT, owner INTEGER REFERENCES users(userid) NOT NULL, text VARCHAR (256), addtime INT NOT NULL);")
+    c.execute("CREATE TABLE IF NOT EXISTS noteloc(noteid INTEGER PRIMARY KEY REFERENCES notes(noteid) ON DELETE CASCADE ON UPDATE CASCADE, userid VARCHAR(32) REFERENCES users(userid), mac VARCHAR(23) REFERENCES devices(mac), lat REAL, lng REAL);")
+    c.execute("CREATE TABLE IF NOT EXISTS notetime(noteid INTEGER PRIMARY KEY REFERENCES notes(noteid) ON DELETE CASCADE ON UPDATE CASCADE, duetime INT NOT NULL);")
     conn.commit()
 
-    #Check if test user is in database
+    #Check if test users are in database
     if not get_user("Steffan"):
         add_user("Steffan", "123")
     if not get_user("Kristian"):
         add_user("Kristian", "123")
     if not get_user("Nicolai"):
         add_user("Nicolai", "123")
-    if not get_user("Matus"):
-        add_user("Matus", "123")
     if not get_user("a"):
         add_user("a", "a")
 
-
-
-    #Milestone 4
-
-    #Finished!
     conn.close()
 
 
@@ -129,6 +127,17 @@ def get_user_object_from_token(token):
         return User(user)
     else:
         return None
+
+
+def get_user_from_id(userid):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM users WHERE userid = '%s" % (userid))
+    user = c.fetchone()
+
+    conn.close()
+    return user
 
 
 def get_other_users_pos(token):
@@ -276,10 +285,11 @@ def get_all_devices():
 
     c.execute("SELECT mac, name, user, lastseen, lat, lng FROM users INNER JOIN (SELECT mac, name, owner, lastseen, lat, lng FROM devices NATURAL JOIN deviceinfo) ON userid = owner;")
     result = c.fetchall()
+    conn.close()
+
     devices = [{"mac": device[0], "name": device[1], "owner": device[2], "lastseen": device[3],
                 "lat": device[4], "lng": device[5]} for device in result]
 
-    conn.close()
     return devices
 
 
@@ -331,3 +341,132 @@ def update_device_info(mac, lat, lng):
         conn.commit()
 
         conn.close()
+
+
+######################################################
+# MILESTONE 4
+def get_note(id):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT owner, text, addtime FROM notes WHERE noteid = '%s';" % (id))
+    note = c.fetchone()
+
+    conn.close()
+    return note
+
+
+def get_noteloc(id):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT userid, mac, lat, lng FROM noteloc WHERE noteid = '%s';" % (id))
+    noteloc = c.fetchone()
+
+    conn.close()
+    return noteloc
+
+
+def get_notetime(id):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT duetime FROM noteloc WHERE noteid = '%s';" % (id))
+    notetime = c.fetchone()
+
+    conn.close()
+    return notetime
+
+
+def get_note_object(userid):
+    if get_note(userid):
+        return Note(userid)
+    else:
+        return None
+
+
+def get_all_notes(userid):
+    conn = connectDB()
+    c = conn.cursor()
+
+    query = "SELECT noteid, owner, addtime, userid, mac, lat, lng, duetime FROM notes NATURAL LEFT OUTER JOIN noteloc NATURAL LEFT OUTER JOIN notetime"
+
+    if userid:
+        query += " WHERE owner = " + userid + "; "
+    else:
+        query += ";"
+
+    c.execute(query)
+    result = c.fetchall()
+
+    conn.close()
+
+    notes = [{"noteid": node[0], "owner": note[1], "addtime": note[2], "userid": note[3], "mac:": note[4], "lat": note[5],
+              "lng": note[6], "duetime": note[7]} for note in result]
+
+    return notes
+
+
+def add_note(owner, text):
+    conn = connectDB()
+    c = conn.cursor()
+
+    #check user exists
+    if get_user_from_id(owner):
+        date = int(time.time())
+        c.execute("INSERT INTO notes(owner, text, addtime) VALUES ( '%s', '%s', '%s' );" % (owner, text, date))
+        conn.commit()
+
+        c.execute("SELECT noteid FROM notes WHERE owner = '%s' AND text = '%s' AND addtime = '%s';" % (owner, text, date))
+        noteid = c.fetchone()
+
+        conn.close()
+        return get_note(noteid)
+    else:
+        return False
+
+
+def update_noteloc(id, userid, mac, lat, lng):
+    conn = connectDB()
+    c = conn.cursor()
+
+    query = "UPDATE noteloc SET "
+    if userid and get_user_from_id(userid):
+        query += "userid = '" + userid + "' "
+        if (mac and get_device(mac)) or (lat and lng):
+            query += ", "
+
+    if mac and get_device(mac):
+        query += "mac = '" + mac + "' "
+        if lat and lng:
+            query += ", "
+
+    if lat and lng:
+        query += "lat = " + lat + ", lng = " + lng + " "
+
+    query += "WHERE noteid = " + id + ";"
+
+    c.execute(query)
+    conn.commit()
+    conn.close()
+    return True
+
+
+def update_notetime(id, time):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("UPDATE notetime SET duetime = '%s' WHERE noteid = '%s';" % (time, id))
+    conn.commit()
+    conn.close()
+    return True
+
+
+def delete_note(id):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("DELETE FROM notes WHERE noteid = '%s'" % (id))
+    conn.commit()
+    conn.close()
+    return True
