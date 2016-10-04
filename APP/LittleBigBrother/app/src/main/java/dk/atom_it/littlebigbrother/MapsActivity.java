@@ -71,12 +71,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         token = getIntent().getStringExtra("token");
         
         Button map_button = (Button) findViewById(R.id.map_button);
-        map_button.setText("Bluetooth Devices");
+        map_button.setText("Events");
 
         map_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                Intent toList = new Intent(tthis, Blist.class);
+                Intent toList = new Intent(tthis, AddEventListener.class);
                 tthis.startActivity(toList);
 
             }
@@ -92,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onBluetoothStartError() {
-                
+
             }
 
             @Override

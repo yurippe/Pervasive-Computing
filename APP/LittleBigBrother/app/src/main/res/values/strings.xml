@@ -1,7 +1,17 @@
-    <resources>
+<resources>
     <string name="app_name">Little Big Brother</string>
     <string name="base_url">http://192.168.1.166:7777</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_login">Little Big Brotha</string>
     <string name="title_activity_signup">Sign Up</string>
+    <string name="title_activity_add_event_listener">Add Event</string>
+
+    <string-array name="event_types">
+        <item>On Bluetooth Enter</item>
+        <item>On Bluetooth Exit</item>
+        <item>On WiFi Enter</item>
+        <item>On WiFi Exit</item>
+        <item>On Position Enter</item>
+        <item>On Position Exit</item>
+    </string-array>
 </resources>

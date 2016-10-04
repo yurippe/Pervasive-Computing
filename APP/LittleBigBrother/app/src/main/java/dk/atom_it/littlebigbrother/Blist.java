@@ -1,8 +1,6 @@
 package dk.atom_it.littlebigbrother;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.net.wifi.ScanResult;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
