@@ -38,6 +38,9 @@ import dk.atom_it.littlebigbrother.data.User;
 import dk.atom_it.littlebigbrother.managers.BluetoothListener;
 import dk.atom_it.littlebigbrother.managers.BluetoothManager;
 import dk.atom_it.littlebigbrother.managers.WiFiListener;
+import dk.atom_it.littlebigbrother.notifications.BluetoothEvent;
+import dk.atom_it.littlebigbrother.notifications.EventManager;
+import dk.atom_it.littlebigbrother.notifications.LocationEvent;
 import dk.atom_it.littlebigbrother.threading.ASyncSucks;
 import dk.atom_it.littlebigbrother.threading.NetworkingSucks;
 import okhttp3.Call;
@@ -154,6 +157,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         BluetoothManager.getInstance(this).scanBluetooth(this);
         networkingSucks = new NetworkingSucks(this);
+
+
+        //Example Location Event
+        EventManager.getInstance().queueListener(new LocationEvent(new LatLng(10.0, 10.0), 2000.0) {
+            @Override
+            public void onEnter() {
+                Toast.makeText(tthis, "OnEnter 10.0 ; 10.0", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onExit() {
+                Toast.makeText(tthis, "OnExit 10.0 ; 10.0", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        //Example Bluetooth Event
+        EventManager.getInstance().queueListener(new BluetoothEvent("9C:D2:1E:61:B3:C1", BluetoothEvent.FILTER_MAC) {
+            @Override
+            public void onEnter() {
+                Toast.makeText(tthis, "Found Kristians PC", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onExit() {
+                Toast.makeText(tthis, "Oh noes, lost Kristians PC", Toast.LENGTH_LONG).show();
+            }
+        });
 
     }
 
@@ -278,6 +308,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Update marker
         myMapMarker.setPosition(pos);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
+
+        //Trigger event listeners:
+        EventManager.getInstance().onLocationUpdate(location);
     }
 
     @Override
@@ -335,18 +368,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onBluetoothScanStarted() {
-
+        //Toast.makeText(this, "BT scan started", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onBluetoothScanResults(List<BluetoothDevice> results) {
-        for(BluetoothDevice device : results){
+        /*for(BluetoothDevice device : results){
             Toast.makeText(this, "Found device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
-        }
+        }*/
+        EventManager.getInstance().onBluetoothUpdate(results);
     }
 
     @Override
     public void onBluetoothScanCompleted() {
+        //Toast.makeText(this, "BT scan ended, restart in 3 secs", Toast.LENGTH_SHORT).show();
         BluetoothManager.getInstance(this).scanBluetooth(this, 3000);
     }
 

@@ -2,6 +2,8 @@ package dk.atom_it.littlebigbrother.notifications;
 
 import android.location.Location;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import dk.atom_it.littlebigbrother.data.Haversine;
 
 /**
@@ -11,10 +13,10 @@ import dk.atom_it.littlebigbrother.data.Haversine;
 public abstract class LocationEvent implements AbstractEvent{
 
     private boolean entered = false;
-    private Location location;
+    private LatLng location;
     private Double radius;
 
-    public LocationEvent(Location loc, Double radius){
+    public LocationEvent(LatLng loc, Double radius){
         this.location = loc;
         this.radius = radius;
     }
@@ -36,7 +38,7 @@ public abstract class LocationEvent implements AbstractEvent{
 
 
     private boolean isInside(Location loc){
-        return Haversine.HaversineInM(this.location.getLatitude(), this.location.getLongitude(), loc.getLatitude(), loc.getLongitude()) < this.radius;
+        return Haversine.HaversineInM(this.location.latitude, this.location.longitude, loc.getLatitude(), loc.getLongitude()) < this.radius;
     }
 
 

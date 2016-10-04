@@ -60,6 +60,18 @@ public class EventManager {
         }
     }
 
+    public void queueListener(WifiEvent event){
+        wifiEvents.add(event);
+    }
+
+    public void queueListener(BluetoothEvent event){
+        bluetoothEvents.add(event);
+    }
+
+    public void queueListener(LocationEvent event){
+        locationEvents.add(event);
+    }
+
 
 
 
