@@ -1,4 +1,4 @@
-package dk.atom_it.littlebigbrother.Jheme;
+package dk.atom_it.littlebigbrother.JhemeExtensions;
 
 /**
  * Created by Kristian on 10/4/2016.

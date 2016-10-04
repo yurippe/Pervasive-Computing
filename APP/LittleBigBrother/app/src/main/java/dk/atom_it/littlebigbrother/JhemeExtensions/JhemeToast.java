@@ -1,4 +1,4 @@
-package dk.atom_it.littlebigbrother.Jheme;
+package dk.atom_it.littlebigbrother.JhemeExtensions;
 
 import android.widget.Toast;
 
