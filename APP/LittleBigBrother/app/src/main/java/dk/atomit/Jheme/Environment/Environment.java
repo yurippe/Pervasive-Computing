@@ -87,6 +87,7 @@ public class Environment {
         e.put("integer?", new IsInteger());
         e.put("pair?", new IsPair());
         e.put("printf", new PrintF());
+        e.put("begin", new Begin());
         return e;
 
     }
