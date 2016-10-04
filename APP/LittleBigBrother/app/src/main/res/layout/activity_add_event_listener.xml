@@ -39,7 +39,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingBottom="40px">
+        android:paddingBottom="40px"
+        android:clickable="false">
 
         <TextView
             android:text="Jheme Code"
@@ -55,7 +56,7 @@
             android:ems="10"
             android:id="@+id/event_code"
             android:layout_weight="2.18"
-            android:text='(toast "1 + 1 = " (+ 1 1))' />
+            android:text='(begin (toast "1 + 1 = " (+ 1 1)) (notify "Notification Title" "Notification Body"))' />
     </LinearLayout>
 
     <Button
