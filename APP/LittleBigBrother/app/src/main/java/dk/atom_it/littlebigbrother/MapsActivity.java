@@ -270,21 +270,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Endpoint endpoint = new Endpoint(tthis, "/getnotes");
 
-        try{
-            String resp = endpoint.syncCall(data);
-            if (resp != null){
-                JSONArray notearray = new JSONArray(resp);
-                for(int i = 0; i < notearray.length(); i++){
-                    JSONObject singleNote = notearray.getJSONObject(i);
-                    AbstractEvent event = EventManager.getInstance().fromJSON(singleNote, tthis);
-                    EventManager.getInstance().queueListener(event);
+        endpoint.call(data, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    //Fuck this... I'm out!
                 }
-            } else {
-                getCloudNotes();
-            }
-        } catch(JSONException e) {
-            getCloudNotes();
-        }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    try{
+                        JSONObject jsonresp = new JSONObject(response.body().string());
+                        JSONArray notearray = jsonresp.getJSONArray("data");
+
+                        for(int i = 0; i < notearray.length(); i++){
+                            JSONObject singleNote = notearray.getJSONObject(i);
+                            AbstractEvent event = EventManager.getInstance().fromJSON(singleNote, tthis);
+                            EventManager.getInstance().queueListener(event);
+                        }
+                    } catch (JSONException e) {
+                        //Fuck this... even more
+                    }
+                }
+        });
     }
 
     @Override
