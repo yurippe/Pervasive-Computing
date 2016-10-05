@@ -46,6 +46,10 @@ public class EventManager {
     private List<BluetoothEvent> bluetoothEvents = new ArrayList<>();
     private List<LocationEvent> locationEvents = new ArrayList<>();
 
+    public List<WifiEvent> getWifiEvents(){return this.wifiEvents;}
+    public List<BluetoothEvent> getBluetoothEvents(){return this.bluetoothEvents;}
+    public List<LocationEvent> getLocationEvents(){return this.locationEvents;}
+
 
     //Methods
     public void onBluetoothUpdate(List<BluetoothDevice> devices){
@@ -96,8 +100,12 @@ public class EventManager {
                 return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
                     @Override
                     public void onEnter() {
-                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
-                        jheme.eval(jhemeProgram);
+                        try {
+                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            jheme.eval(jhemeProgram);
+                        }catch (Exception exception){
+                            System.err.println("Scheme Error in onEnterLocation");
+                        }
                     }
 
                     @Override
@@ -113,8 +121,12 @@ public class EventManager {
 
                     @Override
                     public void onExit() {
+                        try{
                         JhemeInterpreter jheme = new JhemeInterpreter(activity);
                         jheme.eval(jhemeProgram);
+                        } catch (Exception exception){
+                                System.err.println("Scheme Error in onExitLocation");
+                        }
                     }
                 };
 
@@ -122,8 +134,12 @@ public class EventManager {
                 return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
                     @Override
                     public void onEnter() {
-                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
-                        jheme.eval(jhemeProgram);
+                        try{
+                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            jheme.eval(jhemeProgram);
+                        } catch (Exception exception){
+                            System.err.println("Scheme Error in onEnterWiFi");
+                        }
                     }
 
                     @Override
@@ -139,8 +155,12 @@ public class EventManager {
 
                     @Override
                     public void onExit() {
-                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
-                        jheme.eval(jhemeProgram);
+                        try{
+                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            jheme.eval(jhemeProgram);
+                        } catch (Exception exception){
+                            System.err.println("Scheme Error in onExitWiFi");
+                        }
                     }
                 };
 
@@ -148,8 +168,12 @@ public class EventManager {
                 return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
                     @Override
                     public void onEnter() {
-                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
-                        jheme.eval(jhemeProgram);
+                        try{
+                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            jheme.eval(jhemeProgram);
+                        } catch (Exception exception){
+                            System.err.println("Scheme Error in onEnterBluetooth");
+                        }
                     }
 
                     @Override
@@ -165,8 +189,12 @@ public class EventManager {
 
                     @Override
                     public void onExit() {
-                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
-                        jheme.eval(jhemeProgram);
+                        try{
+                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            jheme.eval(jhemeProgram);
+                        } catch (Exception exception){
+                            System.err.println("Scheme Error in onExitBluetooth");
+                        }
                     }
                 };
 
