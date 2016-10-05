@@ -58,7 +58,6 @@ public class AddEventListener extends AppCompatActivity {
                 try {
                     JhemeInterpreter interpreter = new JhemeInterpreter(tthis);
                     interpreter.eval(jhemeCode.getText().toString());
-                    Toast.makeText(tthis, "Everything a-ok", Toast.LENGTH_LONG).show();
                 } catch (RuntimeException runtimeEx){
                     if(runtimeEx.getMessage() != null) {
                         Toast.makeText(tthis, runtimeEx.getMessage(), Toast.LENGTH_LONG).show();
@@ -124,9 +123,7 @@ public class AddEventListener extends AppCompatActivity {
                             } catch (JSONException jsonexcept){
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
-
                             processJSON(json);
-
                         }
                     });
 
@@ -150,7 +147,6 @@ public class AddEventListener extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int i) {
                             dialog.dismiss();
 
-
                             JSONObject json = new JSONObject();
                             try {
                                 json.put("token", Globals.getInstance().token);
@@ -161,7 +157,7 @@ public class AddEventListener extends AppCompatActivity {
                             } catch (JSONException jsonexcept){
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
-
+                            Toast.makeText(tthis, "Event has been added", Toast.LENGTH_LONG).show();
                             processJSON(json);
                         }
                     });
@@ -175,13 +171,8 @@ public class AddEventListener extends AppCompatActivity {
                 }
 
                 builder.show();
-
             }
         });
-
-
-
-
     }
 
     private void processJSON(JSONObject json){
@@ -228,8 +219,5 @@ public class AddEventListener extends AppCompatActivity {
             EventManager.getInstance().queueListener(newEvent);
         }
         //Add it to the scheduler
-
-
     }
-
 }
