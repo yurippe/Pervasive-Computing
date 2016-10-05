@@ -22,6 +22,9 @@ public class Tokenizer {
 
     private String fix(String in){
 
+        in = in.replace('\r', ' ');
+        in = in.replace('\n', ' ');
+
         Matcher m = WHITESPACE.matcher(in);
         m.replaceAll(" ");
 
