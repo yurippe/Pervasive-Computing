@@ -171,88 +171,60 @@ def get_all_devices():
 
 ######################################################
 # MILESTONE 4
+@app.route('/getnotes', methods=["GET", "POST"])
+def get_notes():
+    if request.method = "POST":
+        json = util.getJson(request)
+        user = database.get_user_object_from_token(json["token"])
+
+        if user:
+            return JSON.dumps(database.get_notes(user.ID))
+        else:
+            return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
+    else:
+        return JSON.dumps(database.get_all_notes())
+
+
 @app.route('/addnote', methods=["POST"])
-def set_note():
+def add_note():
     json = util.getJson(request)
 
     user = database.get_user_object_from_token(json["token"])
 
     if user:
-        noteid = database.add_note(user.ID, json["text"])
-        if noteid:
-            return JSON.dumps(util.makeResponseDict(200, "Note added", {"noteid": noteid}))
+        #What type of note is it?
+        if json["type"] <= 7:
+            #Pure note
+            id = database.add_note(json["type"], user.ID, json["note"])
+
+            if json["type"] in [0, 1, 2, 3]:
+                #Bluetooth / Wifi based
+                database.add_notefilter(id, json["filtertype"], json["filter"])
+
+            elif json["type"] in [4, 5]:
+                # Locationsbased
+                database.add_noteloc(id, json["radius"], json["lat"], json["lng"])
+
+            return JSON.dumps(util.makeResponseDict(200, "Note created", data={"noteid": id}))
         else:
-            return JSON.dumps(util.makeResponseDict(500, "Note not added"))
+            return JSON.dumps(util.makeResponseDict(400, "Bad notetype"))
     else:
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
 
 
-@app.route('/updatenote', methods=["POST"])
-def update_note():
-    json = util.getJson(request)
-    user = database.get_user_object_from_token(json["token"])
-    note = database.get_note_object(json["id"])
-
-    if note:
-        if user and (user.ID == note.owner):
-            userid = False
-            if json.has_key("userid"):
-                userid = json["userid"]
-
-            mac = False
-            if json.has_key("mac"):
-                mac = json["mac"]
-
-            lat = False
-            lng = False
-            if json.has_key("lat") and json.has_key("lng"):
-                lat = json["lat"]
-                lng = json["lng"]
-
-            if userid or mac or lat:
-                database.update_noteloc(note.ID, userid, mac, lat, lng)
-
-            due = False
-            if json.has_key("due"):
-                due = json["due"]
-
-            if due:
-                database.update_notetime(note.ID, due)
-            return JSON.dumps(util.makeResponseDict(200, "Note updated"))
-        else:
-            return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
-    else:
-        return JSON.dumps(util.makeResponseDict(404, "Note not known"))
-
-
-@app.route('/allnotes', methods=["GET", "POST"])
-def get_note():
-    if request.method == "POST":
-        json = util.getJson(request)
-
-        user = database.get_user_object_from_token(json["token"])
-        if user:
-            return JSON.dumps(database.get_all_notes(user.ID))
-        else:
-            return JSON.dumps(util.makeResponseDict(403, "Bad credentials"))
-    else:
-        return JSON.dumps(database.get_all_notes(False))
-
-
-@app.route('deletenote', methods=["POST"])
+@app.route("/deletenote", methods=["POST"])
 def delete_note():
     json = util.getJson(request)
-    user = database.get_user_object_from_token(json["token"])
-    note = database.get_note_object(json["id"])
 
-    if note:
-        if user and (user.ID == note.owner):
-            database.delete_note(note.ID)
-            return JSON.dumps(200, "Note deleted")
+    user = database.get_user_from_token(json["token"])
+
+    if user:
+        if database.delete_note(json["noteid"], user.ID):
+            return JSON.dumps(util.makeResponseDict(200, "Note deleted"))
         else:
-            return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
+            return JSON.dumps(util.makeResponseDict(403, "Not your note!"))
     else:
-        return JSON.dumps(util.makeResponseDict(404, "Note not known"))
+        return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
 
 
 ######################################################
