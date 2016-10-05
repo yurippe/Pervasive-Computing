@@ -48,7 +48,7 @@ public class Environment {
         } else if (outer != null){
             return outer.find(key);
         } else {
-            throw new RuntimeException("Variable not defined: " + key);
+            throw new RuntimeException("Variable not defined: '" + key + "'");
         }
     }
 
@@ -88,6 +88,7 @@ public class Environment {
         e.put("pair?", new IsPair());
         e.put("printf", new PrintF());
         e.put("begin", new Begin());
+        e.put("stringappend", new StringAppend());
         return e;
 
     }

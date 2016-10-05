@@ -106,9 +106,11 @@ public class Interpreter {
 
     public void assertIsType(SchemeObject assertedin, SchemeObject arg, Class type){
         if(!(arg.getClass() == type)){
-            throw new RuntimeException("Expected argument to be of type: " + type.getClass().getName());
+            throw new RuntimeException("Expected argument to be of type: " + type.getName() + " found type: " + arg.getClass().getName());
         }
     }
+
+
 
     public void assertListSize(SchemeObject assertedin, List<?> list, int assertcount){
         if(!(list.size() == assertcount)){
