@@ -66,6 +66,7 @@ def checkDB():
     conn.close()
 
 
+#wub, wub...
 def drop_the_tables():
     conn = connectDB()
     c = conn.cursor()
