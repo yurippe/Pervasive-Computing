@@ -436,7 +436,7 @@ def add_noteloc(id, radius, lat, lng):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("INSERT INTO noteloc(noteid, radius, lat, lng) VALUES ('%s', '%s', '%s', '%s');" % (id, radius, lat, lng))
+    c.execute("INSERT INTO notepos(noteid, radius, lat, lng) VALUES ('%s', '%s', '%s', '%s');" % (id, radius, lat, lng))
     conn.commit()
 
     conn.close()
@@ -458,7 +458,7 @@ def delete_note(id, owner):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM nots WHERE noteid = '%s' AND owner '%s';" % (id, owner))
+    c.execute("SELECT * FROM notes WHERE noteid = '%s' AND owner = '%s';" % (id, owner))
     owned = c.fetchone()
 
     if owned:

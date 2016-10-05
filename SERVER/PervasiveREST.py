@@ -218,7 +218,7 @@ def add_note():
 def delete_note():
     json = util.getJson(request)
 
-    user = database.get_user_from_token(json["token"])
+    user = database.get_user_object_from_token(json["token"])
 
     if user:
         if database.delete_note(json["noteid"], user.ID):

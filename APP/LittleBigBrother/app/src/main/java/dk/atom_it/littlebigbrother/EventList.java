@@ -1,11 +1,13 @@
 package dk.atom_it.littlebigbrother;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.atom_it.littlebigbrother.data.EventAdapter;
+import dk.atom_it.littlebigbrother.data.Globals;
 import dk.atom_it.littlebigbrother.notifications.AbstractEvent;
 import dk.atom_it.littlebigbrother.notifications.EventManager;
 
@@ -43,6 +46,22 @@ public class EventList extends AppCompatActivity {
             }
         });
 
+        final EventList tthis = this;
+
+        listEvents.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Globals.getInstance().tempEvent = adapter.getItem(position);
+                Intent intent = new Intent(tthis, UpdateEventListener.class);
+                tthis.startActivity(intent);
+            }
+        });
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        adapter.clear();
+        adapter.addAll(EventManager.getInstance().getAllEvents());
+    }
 }

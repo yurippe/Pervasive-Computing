@@ -176,7 +176,7 @@ public class AddEventListener extends AppCompatActivity {
         });
     }
 
-    private static void processJSON(JSONObject json, final Activity activity){
+    public static void processJSON(JSONObject json, final Activity activity){
         final AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, activity);
         //Update server
         if(Globals.getInstance().token != null) {
