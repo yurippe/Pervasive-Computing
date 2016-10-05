@@ -17,7 +17,7 @@ public abstract class WifiEvent implements AbstractEvent {
     private String filter;
     private boolean entered = false;
 
-    private int noteID;
+    private int noteID = -1;
 
     public WifiEvent(String filter, int filter_type){
         this.filter = filter;

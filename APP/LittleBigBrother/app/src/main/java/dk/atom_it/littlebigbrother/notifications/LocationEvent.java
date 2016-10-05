@@ -16,7 +16,7 @@ public abstract class LocationEvent implements AbstractEvent{
     private LatLng location;
     private Double radius;
 
-    private int noteID;
+    private int noteID = -1;
 
     public LocationEvent(LatLng loc, Double radius){
         this.location = loc;
