@@ -376,7 +376,7 @@ def get_notes(owner):
     notes = [{"noteid": note[0], "type": note[1], "note": note[2]} for note in result]
 
     #Type 5-6
-    c.execute("SELECT noteid, notetype, note, radius, lat, lng FROM notes NATURAL JOIN noteloc WHERE owner = '%s';" % (owner))
+    c.execute("SELECT noteid, notetype, note, radius, lat, lng FROM notes NATURAL JOIN notepos WHERE owner = '%s';" % (owner))
     result = c.fetchall()
 
     notes += [{"noteid": note[0], "type": note[1], "note": note[2],
