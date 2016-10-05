@@ -115,6 +115,18 @@ public class EventManager {
         locationEvents.clear();
     }
 
+    public boolean unqueueListener(AbstractEvent event){
+        if(event instanceof WifiEvent){
+            return wifiEvents.remove(event);
+        } else if (event instanceof BluetoothEvent){
+            return bluetoothEvents.remove(event);
+        } else if (event instanceof LocationEvent){
+            return locationEvents.remove(event);
+        } else {
+            return false;
+        }
+    }
+
     public AbstractEvent fromJSON(String data, final Activity activity){
         try{return fromJSON(new JSONObject(data), activity);}
         catch (JSONException e){return null;}
