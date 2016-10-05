@@ -8,4 +8,5 @@ public interface AbstractEvent {
 
     public void onEnter();
     public void onExit();
+    public String getJhemeCode();
 }

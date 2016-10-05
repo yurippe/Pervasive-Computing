@@ -101,6 +101,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onExit() {
                 Toast.makeText(tthis, "OnExit 10.0 ; 10.0", Toast.LENGTH_LONG).show();
             }
+
+            @Override
+            public String getJhemeCode(){
+                return "";
+            }
         });
 
         //Example Bluetooth Event
@@ -113,6 +118,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onExit() {
                 Toast.makeText(tthis, "Oh noes, lost Kristians PC", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public String getJhemeCode(){
+                return "";
             }
         });
 
