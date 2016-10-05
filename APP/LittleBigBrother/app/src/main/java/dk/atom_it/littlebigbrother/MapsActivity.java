@@ -154,6 +154,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
         //Get our new position
         LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
+        Globals.getInstance().userPosition = pos;
 
         //Send movement to server
         if(Globals.getInstance().token != null){
