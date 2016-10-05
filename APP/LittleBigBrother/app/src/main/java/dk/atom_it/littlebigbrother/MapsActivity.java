@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import dk.atom_it.littlebigbrother.api.Endpoint;
-import dk.atom_it.littlebigbrother.data.Device;
 import dk.atom_it.littlebigbrother.data.User;
 import dk.atom_it.littlebigbrother.managers.BluetoothListener;
 import dk.atom_it.littlebigbrother.managers.BluetoothManager;
@@ -41,7 +40,6 @@ import dk.atom_it.littlebigbrother.managers.WiFiListener;
 import dk.atom_it.littlebigbrother.notifications.BluetoothEvent;
 import dk.atom_it.littlebigbrother.notifications.EventManager;
 import dk.atom_it.littlebigbrother.notifications.LocationEvent;
-import dk.atom_it.littlebigbrother.threading.ASyncSucks;
 import dk.atom_it.littlebigbrother.threading.NetworkingSucks;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -84,76 +82,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-
-        final HashMap<String, Device> deviceHashMap = new HashMap<>();
-
-        /*aSyncSucks = new ASyncSucks(this) {
-            @Override
-            public void onBluetoothSetupError() {
-                Toast.makeText(this.activity, "Could not access Bluetooth on this device", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onBluetoothStartError() {
-
-            }
-
-            @Override
-            public void onBluetoothDeviceDiscovery(BluetoothDevice device) {
-                double lat = myMapMarker.getPosition().latitude;
-                double lng = myMapMarker.getPosition().longitude;
-                Device foundDevice;
-
-                if(!deviceHashMap.containsKey(device.getAddress())){
-                    foundDevice = new Device(this.activity, token, device.getAddress(), device.getName(), lat, lng);
-                    deviceHashMap.put(device.getAddress(), foundDevice);
-                } else {
-                    foundDevice = deviceHashMap.get(device.getAddress());
-                    foundDevice.setLatLng(lat, lng);
-                    foundDevice.commit();
-                }
-
-                //Toast.makeText(this.activity, "Found Device: " + device.getName() + " - " + device.getAddress(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onBluetoothDiscoveryStarted() {
-
-            }
-
-            @Override
-            public void onBluetoothDiscoveryCompleted() {
-                this.startBluetoothDiscovery(10000);
-            }
-
-            @Override
-            public void onWiFiSetupError() {
-                Toast.makeText(this.activity, "Could not access WiFi on this device", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onWiFiStartError() {
-
-            }
-
-            @Override
-            public void onWiFiScanResults(List<ScanResult> APs) {
-                //Toast.makeText(this.activity, "Found " + APs.size() + " networks " + (APs.size()>0 ? "(e.x. " + APs.get(0).SSID + " - " + APs.get(0).BSSID + ")" : ""), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onWiFiScanStarted() {
-
-            }
-
-            @Override
-            public void onWiFiScanCompleted() {
-            }
-        };
-
-        aSyncSucks.startWiFiScan();
-        aSyncSucks.startBluetoothDiscovery();
-        */
 
         BluetoothManager.getInstance(this).scanBluetooth(this);
         networkingSucks = new NetworkingSucks(this);
