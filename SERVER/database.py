@@ -44,9 +44,9 @@ def checkDB():
     c.execute("CREATE TABLE IF NOT EXISTS devices(mac VARCHAR(32) PRIMARY KEY, name VARCHAR(128), owner INTEGER, FOREIGN KEY(owner) REFERENCES users(userid));")
     c.execute("CREATE TABLE IF NOT EXISTS deviceinfo(mac VARCHAR(32), lastseen INTEGER DEFAULT 0, lat REAL DEFAULT 0, lng REAL DEFAULT 0, FOREIGN KEY(mac) REFERENCES devices(mac));")
     #Milestone 4
-    c.execute("CREATE TABLE IF NOT EXISTS notes(noteid INTEGER PRIMARY KEY AUTOINCREMENT, `type` INTEGER NOT NULL, owner INTEGER REFERENCES users(userid) NOT NULL, note TEXT);")
+    c.execute("CREATE TABLE IF NOT EXISTS notes(noteid INTEGER PRIMARY KEY AUTOINCREMENT, notetype INTEGER NOT NULL, owner INTEGER REFERENCES users(userid) NOT NULL, note TEXT);")
     c.execute("CREATE TABLE IF NOT EXISTS notepos(noteid INTEGER PRIMARY KEY REFERENCES notes(noteid) ON DELETE CASCADE ON UPDATE CASCADE, radius REAL DEFAULT 10, lat REAL NOT NULL, lng REAL NOT NULL);")
-    c.execute("CREATE TABLE IF NOT EXISTS notebluewhy(noteid INTEGER PRIMARY KEY REFERENCES notes(noteid) ON DELETE CASCADE ON UPDATE CASCADE, filtertype INTEGER DEFAULT 0, filter VARCHAR(256))")
+    c.execute("CREATE TABLE IF NOT EXISTS notebluewhy(noteid INTEGER PRIMARY KEY REFERENCES notes(noteid) ON DELETE CASCADE ON UPDATE CASCADE, filtertype INTEGER DEFAULT 0, filter VARCHAR(256));")
     conn.commit()
 
     #Check if test users are in database
@@ -348,20 +348,20 @@ def get_notes(owner):
     c = conn.cursor()
 
     #Type 7
-    c.execute("SELECT noteid, `type`, note FROM notes WHERE owner = '%s' AND `type` = 7" % (owner))
+    c.execute("SELECT noteid, notetype, note FROM notes WHERE owner = '%s' AND notetype = 7;" % (owner))
     result = c.fetchall()
 
     notes = [{"noteid": note[0], "type": note[1], "note": note[2]} for note in result]
 
     #Type 5-6
-    c.execute("SELECT noteid, `type`, note, radius, lat, lng FROM notes NATURAL JOIN noteloc WHERE owner = '%s';" % (owner))
+    c.execute("SELECT noteid, notetype, note, radius, lat, lng FROM notes NATURAL JOIN noteloc WHERE owner = '%s';" % (owner))
     result = c.fetchall()
 
     notes += [{"noteid": note[0], "type": note[1], "note": note[2],
               "radius": note[3], "lat": note[4], "lng": note[5]} for note in result]
 
     #Type 0-4
-    c.execute("SELECT noteid, `type`, note, filtertype, filter FROM notes NATURAL JOIN notebluewhy WHERE owner = '%s';" % (owner))
+    c.execute("SELECT noteid, notetype, note, filtertype, filter FROM notes NATURAL JOIN notebluewhy WHERE owner = '%s';" % (owner))
     result = c.fetchall()
 
     notes += [{"noteid": note[0], "type": note[1], "note": note[2],
@@ -375,18 +375,18 @@ def get_all_notes():
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT noteid, `type`, note FROM notes WHERE `type` = 7 ")
+    c.execute("SELECT noteid, notetype, note FROM notes WHERE notetype = 7;")
     result = c.fetchall()
 
     notes = [{"noteid": note[0], "type": note[1], "note": note[2]} for note in result]
 
-    c.execute("SELECT noteid, owner, `type`, note, radius, lat, lng FROM notes NATURAL JOIN noteloc;")
+    c.execute("SELECT noteid, owner, notetype, note, radius, lat, lng FROM notes NATURAL JOIN noteloc;")
     result = c.fetchall()
 
     notes = [{"noteid": note[0], "owner": note[1], "type": note[2], "note": note[3],
               "radius": note[4], "lat": note[5], "lng": note[6]} for note in result]
 
-    c.execute("SELECT noteid, owner, `type`, note, filtertype, filter FROM notes NATURAL JOIN notebluewhy;")
+    c.execute("SELECT noteid, owner, notetype, note, filtertype, filter FROM notes NATURAL JOIN notebluewhy;")
     result = c.fetchall()
 
     notes += [{"noteid": note[0], "owner": note[1], "type": note[2], "note": note[3],
@@ -400,7 +400,7 @@ def add_note(type, owner, note):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("INSERT INTO notes(`type`, owner, note) VALUES ('%s', '%s', '%s')" % (type, owner, note))
+    c.execute("INSERT INTO notes(notetype, owner, note) VALUES ('%s', '%s', '%s');" % (type, owner, note))
     conn.commit()
 
     noteid = c.lastrowid
@@ -413,7 +413,7 @@ def add_noteloc(id, radius, lat, lng):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("INSERT INTO noteloc(noteid, radius, lat, lng) VALUES ('%s', '%s', '%s', '%s')" % (id, radius, lat, lng))
+    c.execute("INSERT INTO noteloc(noteid, radius, lat, lng) VALUES ('%s', '%s', '%s', '%s');" % (id, radius, lat, lng))
     conn.commit()
 
     conn.close()
@@ -424,7 +424,7 @@ def add_notefilter(id, filtertype, filter):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("INSERT INTO notebluewhy(noteid, filtertype, filter) VALUES ('%s', '%s', '%s')" % (id, filtertype, filter))
+    c.execute("INSERT INTO notebluewhy(noteid, filtertype, filter) VALUES ('%s', '%s', '%s');" % (id, filtertype, filter))
     conn.commit()
 
     conn.close()
@@ -435,11 +435,11 @@ def delete_note(id, owner):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM nots WHERE noteid = '%s' AND owner '%s'" % (id, owner))
+    c.execute("SELECT * FROM nots WHERE noteid = '%s' AND owner '%s';" % (id, owner))
     owned = c.fetchone()
 
     if owned:
-        c.execute("DELETE FROM notes WHERE noteid = '%s' AND owner = '%s'" % (id, owner))
+        c.execute("DELETE FROM notes WHERE noteid = '%s' AND owner = '%s';" % (id, owner))
         conn.commit()
 
         conn.close()
