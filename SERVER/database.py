@@ -5,6 +5,7 @@ from User import User
 from Device import Device
 #import the SQL lite database
 import sqlite3
+import os
 
 
 # Hash the password to the database. The username is also used for security
@@ -26,7 +27,8 @@ def generate_token(username):
 
 
 def connectDB():
-    conn = sqlite3.connect('dPerv.db')
+    dbpath = os.path.join(os.path.realpath(__file__), 'dPerv.db')
+    conn = sqlite3.connect(dbpath)
     return conn
 
 
