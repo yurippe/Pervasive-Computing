@@ -112,4 +112,8 @@
         android:textSize="12sp"
         android:typeface="monospace" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
 </LinearLayout>

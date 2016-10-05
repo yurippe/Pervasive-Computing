@@ -3,10 +3,12 @@ package dk.atom_it.littlebigbrother;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,20 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +49,12 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class AddEventListener extends AppCompatActivity {
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +81,8 @@ public class AddEventListener extends AppCompatActivity {
                 try {
                     JhemeInterpreter interpreter = new JhemeInterpreter(tthis);
                     interpreter.eval(jhemeCode.getText().toString());
-                } catch (RuntimeException runtimeEx){
-                    if(runtimeEx.getMessage() != null) {
+                } catch (RuntimeException runtimeEx) {
+                    if (runtimeEx.getMessage() != null) {
                         Toast.makeText(tthis, runtimeEx.getMessage(), Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(tthis, "Syntax error", Toast.LENGTH_LONG).show();
@@ -70,7 +92,7 @@ public class AddEventListener extends AppCompatActivity {
                 }
             }
         });
-        
+
         Button eventLists = (Button) findViewById(R.id.eventLists);
         eventLists.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,27 +113,100 @@ public class AddEventListener extends AppCompatActivity {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
 
-                if(type == 4 || type == 5) {
+                if (type == 4 || type == 5) {
                     builder.setTitle("Location");
-                    View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_location, (ViewGroup) view.getRootView(), false);
+                    final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_location, (ViewGroup) view.getRootView(), false);
                     builder.setView(inflated);
 
                     final TextView txt_lat = (TextView) inflated.findViewById(R.id.dialog_lat);
                     final TextView txt_lng = (TextView) inflated.findViewById(R.id.dialog_lng);
                     final TextView txt_radius = (TextView) inflated.findViewById(R.id.dialog_radius);
 
+                    //Map button
+                    final Button mapButt = (Button) inflated.findViewById(R.id.dialog_map);
+                    mapButt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //Map lat lng picker
+                            final AlertDialog.Builder mapBuilder = new AlertDialog.Builder(tthis);
+                            mapBuilder.setTitle("Choose location");
 
-                    builder.setPositiveButton("Add", new DialogInterface.OnClickListener(){
+                            View mapView = LayoutInflater.from(tthis).inflate(R.layout.dialog_map, (ViewGroup) v.getRootView(), false);
+                            mapBuilder.setView(mapView);
+
+                            MapFragment map = (MapFragment) tthis.getFragmentManager().findFragmentById(R.id.dialog_mapFragment);
+
+                            map.getMapAsync(new OnMapReadyCallback() {
+                                @Override
+                                public void onMapReady(final GoogleMap googleMap) {
+                                    LatLng pos = Globals.getInstance().userPosition;
+
+                                    final Marker marker = googleMap.addMarker(new MarkerOptions().position(pos).title("Move Me!"));
+                                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(30));
+                                    marker.setAlpha((float) 0.9);
+                                    marker.setDraggable(false);
+
+                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 13));
+
+
+                                    googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener(){
+                                        @Override
+                                        public void onCameraMove() {
+                                            LatLng newpos = googleMap.getCameraPosition().target;
+                                            marker.setPosition(newpos);
+                                        }
+                                    });
+
+                                    mapBuilder.setPositiveButton("set", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            txt_lat.setText(marker.getPosition().latitude + "");
+                                            txt_lng.setText(marker.getPosition().longitude + "");
+                                            dialog.dismiss();
+                                        }
+                                    });
+
+                                    mapBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                                    mapBuilder.show();
+                                }
+                            });
+
+
+                        }
+                    });
+
+                    //Add button
+                    builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int i) {
                             dialog.dismiss();
-                            double lat; double lng; double radius;
-                            try{lat = Double.parseDouble(txt_lat.getText().toString());}
-                            catch (Exception exc){Toast.makeText(tthis, "Latitude is not a valid number", Toast.LENGTH_SHORT).show(); return;}
-                            try{lng = Double.parseDouble(txt_lng.getText().toString());}
-                            catch (Exception exc){Toast.makeText(tthis, "Longitude is not a valid number", Toast.LENGTH_SHORT).show(); return;}
-                            try{radius = Double.parseDouble(txt_radius.getText().toString());}
-                            catch (Exception exc){Toast.makeText(tthis, "Radius is not a valid number", Toast.LENGTH_SHORT).show(); return;}
+                            double lat;
+                            double lng;
+                            double radius;
+                            try {
+                                lat = Double.parseDouble(txt_lat.getText().toString());
+                            } catch (Exception exc) {
+                                Toast.makeText(tthis, "Latitude is not a valid number", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            try {
+                                lng = Double.parseDouble(txt_lng.getText().toString());
+                            } catch (Exception exc) {
+                                Toast.makeText(tthis, "Longitude is not a valid number", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            try {
+                                radius = Double.parseDouble(txt_radius.getText().toString());
+                            } catch (Exception exc) {
+                                Toast.makeText(tthis, "Radius is not a valid number", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
 
                             JSONObject json = new JSONObject();
                             try {
@@ -121,14 +216,14 @@ public class AddEventListener extends AppCompatActivity {
                                 json.put("lat", lat);
                                 json.put("lng", lng);
                                 json.put("radius", radius);
-                            } catch (JSONException jsonexcept){
+                            } catch (JSONException jsonexcept) {
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
                             processJSON(json, tthis);
                         }
                     });
 
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int i) {
                             dialog.cancel();
@@ -143,7 +238,7 @@ public class AddEventListener extends AppCompatActivity {
                     final TextView txt_filter = (TextView) inflated.findViewById(R.id.dialog_filter);
                     final ToggleButton inp_filtertype = (ToggleButton) inflated.findViewById(R.id.dialog_filtertype);
 
-                    builder.setPositiveButton("Add", new DialogInterface.OnClickListener(){
+                    builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int i) {
                             dialog.dismiss();
@@ -155,7 +250,7 @@ public class AddEventListener extends AppCompatActivity {
                                 json.put("note", jhemeProgram);
                                 json.put("filtertype", (inp_filtertype.isChecked() ? 0 : 1));
                                 json.put("filter", txt_filter.getText().toString());
-                            } catch (JSONException jsonexcept){
+                            } catch (JSONException jsonexcept) {
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
                             Toast.makeText(tthis, "Event has been added", Toast.LENGTH_LONG).show();
@@ -163,7 +258,7 @@ public class AddEventListener extends AppCompatActivity {
                         }
                     });
 
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int i) {
                             dialog.cancel();
@@ -174,12 +269,15 @@ public class AddEventListener extends AppCompatActivity {
                 builder.show();
             }
         });
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    public static void processJSON(JSONObject json, final Activity activity){
+    public static void processJSON(JSONObject json, final Activity activity) {
         final AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, activity);
         //Update server
-        if(Globals.getInstance().token != null) {
+        if (Globals.getInstance().token != null) {
             //final AddEventListener tthis = this;
             NetworkingSucks.addNote(json.toString(), new Callback() {
                 @Override
@@ -191,20 +289,20 @@ public class AddEventListener extends AppCompatActivity {
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
                         JSONObject resp = new JSONObject(response.body().string());
-                        if(resp.getInt("status") != 200){
+                        if (resp.getInt("status") != 200) {
                             response.close();
                             AnErrorOccured("Server error (" + resp.getInt("status") + ") ; Note was not saved");
                         }
                         int noteid = resp.getJSONObject("data").getInt("noteid");
                         newEvent.setNoteId(noteid);
                         response.close();
-                    } catch (JSONException exception){
+                    } catch (JSONException exception) {
                         AnErrorOccured(exception.getMessage() + " ; Note was not saved");
                         response.close();
                     }
                 }
 
-                private void AnErrorOccured(final String message){
+                private void AnErrorOccured(final String message) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -220,5 +318,41 @@ public class AddEventListener extends AppCompatActivity {
             EventManager.getInstance().queueListener(newEvent);
         }
         //Add it to the scheduler
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("AddEventListener Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
     }
 }
