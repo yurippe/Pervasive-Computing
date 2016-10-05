@@ -19,6 +19,17 @@ def getUser(token):
     else:
         return None
 
+######################################################
+# Other
+@app.route('/test', methods=["POST"])
+def hello_world():
+    json = util.getJson(request)
+    user = database.get_user_object_from_token((json["token"]))
+    if user:
+        return "Hello " + user.username
+    else:
+        return 'Hello World!'
+
 
 ######################################################
 # MILESTONE 2
@@ -57,14 +68,6 @@ def signup():
     return JSON.dumps(resp)
 
 
-@app.route('/test', methods=["POST"])
-def hello_world():
-    json = util.getJson(request)
-    user = database.get_user_object_from_token((json["token"]))
-    if user:
-        return "Hello " + user.username
-    else:
-        return 'Hello World!'
 
 
 @app.route('/updatepos', methods=["POST"])
@@ -173,7 +176,7 @@ def get_all_devices():
 # MILESTONE 4
 @app.route('/getnotes', methods=["GET", "POST"])
 def get_notes():
-    if request.method = "POST":
+    if request.method == "POST":
         json = util.getJson(request)
         user = database.get_user_object_from_token(json["token"])
 
@@ -212,7 +215,7 @@ def add_note():
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
 
 
-@app.route("/deletenote", methods=["POST"])
+@app.route('/deletenote', methods=["POST"])
 def delete_note():
     json = util.getJson(request)
 
