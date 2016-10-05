@@ -61,6 +61,13 @@ public class EventManager {
     public List<WifiEvent> getWifiEvents(){return this.wifiEvents;}
     public List<BluetoothEvent> getBluetoothEvents(){return this.bluetoothEvents;}
     public List<LocationEvent> getLocationEvents(){return this.locationEvents;}
+    public List<AbstractEvent> getAllEvents(){
+        List<AbstractEvent> list = new ArrayList<>();
+        list.addAll(getWifiEvents());
+        list.addAll(getBluetoothEvents());
+        list.addAll(getLocationEvents());
+        return list;
+    }
 
 
     //Methods
@@ -123,7 +130,6 @@ public class EventManager {
             if (type == LOCATION_ENTER) {
 
                 return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
-                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                         try {
@@ -139,14 +145,14 @@ public class EventManager {
                     }
 
                     @Override
-                    public String getJhemeCode() {
-                        return jhemeProgram;
-                    }
+                    public String getJhemeCode() {return jhemeProgram;}
+                    @Override
+                    public int getEventType(){return type;}
+
                 };
 
             } else if (type == LOCATION_EXIT) {
                 return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
-                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                     }
@@ -162,14 +168,13 @@ public class EventManager {
                     }
 
                     @Override
-                    public String getJhemeCode() {
-                        return jhemeProgram;
-                    }
+                    public String getJhemeCode() {return jhemeProgram;}
+                    @Override
+                    public int getEventType(){return type;}
                 };
 
             } else if (type == WIFI_ENTER) {
                 return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
-                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                         try{
@@ -185,14 +190,13 @@ public class EventManager {
                     }
 
                     @Override
-                    public String getJhemeCode() {
-                        return jhemeProgram;
-                    }
+                    public String getJhemeCode() {return jhemeProgram;}
+                    @Override
+                    public int getEventType(){return type;}
                 };
 
             } else if (type == WIFI_EXIT) {
                 return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
-                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                     }
@@ -208,14 +212,13 @@ public class EventManager {
                     }
 
                     @Override
-                    public String getJhemeCode() {
-                        return jhemeProgram;
-                    }
+                    public String getJhemeCode() {return jhemeProgram;}
+                    @Override
+                    public int getEventType(){return type;}
                 };
 
             } else if (type == BLUETOOTH_ENTER) {
                 return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
-                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                         try{
@@ -231,14 +234,13 @@ public class EventManager {
                     }
 
                     @Override
-                    public String getJhemeCode() {
-                        return jhemeProgram;
-                    }
+                    public String getJhemeCode() {return jhemeProgram;}
+                    @Override
+                    public int getEventType(){return type;}
                 };
 
             } else if (type == BLUETOOTH_EXIT) {
                 return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
-                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                     }
@@ -254,9 +256,9 @@ public class EventManager {
                     }
 
                     @Override
-                    public String getJhemeCode() {
-                        return jhemeProgram;
-                    }
+                    public String getJhemeCode() {return jhemeProgram;}
+                    @Override
+                    public int getEventType(){return type;}
                 };
 
             } else {

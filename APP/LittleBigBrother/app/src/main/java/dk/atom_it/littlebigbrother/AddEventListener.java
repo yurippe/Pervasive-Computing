@@ -76,6 +76,7 @@ public class AddEventListener extends AppCompatActivity {
             }
         });
 
+
         Button eventAddButton = (Button) findViewById(R.id.event_add_button);
         eventAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
