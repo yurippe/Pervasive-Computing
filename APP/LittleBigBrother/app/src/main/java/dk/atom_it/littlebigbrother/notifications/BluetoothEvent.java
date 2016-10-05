@@ -17,6 +17,8 @@ public abstract class BluetoothEvent implements AbstractEvent{
     private String filter;
     private boolean entered = false;
 
+    private int noteID = -1;
+
 
     public BluetoothEvent(String filter, int filter_type){
         this.filter = filter;
@@ -67,4 +69,13 @@ public abstract class BluetoothEvent implements AbstractEvent{
         return this.filter;
     }
 
+    @Override
+    public int getNoteId() {
+        return this.noteID;
+    }
+
+    @Override
+    public void setNoteId(int id){
+        this.noteID = id;
+    }
 }

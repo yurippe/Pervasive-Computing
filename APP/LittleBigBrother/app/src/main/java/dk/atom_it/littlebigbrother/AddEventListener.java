@@ -3,6 +3,7 @@ package dk.atom_it.littlebigbrother;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -181,11 +182,51 @@ public class AddEventListener extends AppCompatActivity {
     }
 
     private void processJSON(JSONObject json){
+        final AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, this);
         //Update server
-        NetworkingSucks.addNote(json.toString());
+        if(Globals.getInstance().token != null) {
+            final AddEventListener tthis = this;
+            NetworkingSucks.addNote(json.toString(), new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    AnErrorOccured("Failed to update server with notification, notification will not be saved");
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    try {
+                        JSONObject resp = new JSONObject(response.body().string());
+                        if(resp.getInt("status") != 200){
+                            response.close();
+                            AnErrorOccured("Server error (" + resp.getInt("status") + ") ; Note was not saved");
+                        }
+                        int noteid = resp.getJSONObject("data").getInt("noteid");
+                        newEvent.setNoteId(noteid);
+                        response.close();
+                    } catch (JSONException exception){
+                        AnErrorOccured(exception.getMessage() + " ; Note was not saved");
+                        response.close();
+                    }
+                }
+
+                private void AnErrorOccured(final String message){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(tthis, message, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            });
+            //Queue it anyways ? maybe put this into onResponse idk
+            EventManager.getInstance().queueListener(newEvent);
+        } else {
+            //No token, we arent logged in, so just schedule the event
+            EventManager.getInstance().queueListener(newEvent);
+        }
         //Add it to the scheduler
-        AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, this);
-        EventManager.getInstance().queueListener(newEvent);
+
+
     }
 
 }

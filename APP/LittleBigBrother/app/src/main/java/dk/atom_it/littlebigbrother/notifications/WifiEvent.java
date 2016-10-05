@@ -17,6 +17,8 @@ public abstract class WifiEvent implements AbstractEvent {
     private String filter;
     private boolean entered = false;
 
+    private int noteID;
+
     public WifiEvent(String filter, int filter_type){
         this.filter = filter;
         this.type = filter_type;
@@ -64,6 +66,16 @@ public abstract class WifiEvent implements AbstractEvent {
 
     public String getFilter(){
         return this.filter;
+    }
+
+    @Override
+    public int getNoteId() {
+        return this.noteID;
+    }
+
+    @Override
+    public void setNoteId(int id){
+        this.noteID = id;
     }
 
 }

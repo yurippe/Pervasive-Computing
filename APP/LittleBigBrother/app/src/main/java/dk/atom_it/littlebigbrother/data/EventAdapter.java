@@ -39,6 +39,8 @@ public class EventAdapter extends ArrayAdapter<AbstractEvent> {
         TextView value1 = (TextView) convertView.findViewById(R.id.Note1Text);
         TextView value2 = (TextView) convertView.findViewById(R.id.Note2Text);
 
+        TextView idlabel = (TextView) convertView.findViewById(R.id.NoteIDLabel);
+
         TextView jhemeCode = (TextView) convertView.findViewById(R.id.NoteJheme);
 
         if(event instanceof LocationEvent) {
@@ -62,6 +64,7 @@ public class EventAdapter extends ArrayAdapter<AbstractEvent> {
         }
 
         jhemeCode.setText(event.getJhemeCode());
+        idlabel.setText(""+event.getNoteId());
         typeText.setText(EventManager.typeToString(event.getEventType()));
 
         return convertView;

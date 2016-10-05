@@ -9,4 +9,7 @@ public interface AbstractEvent {
     public void onExit();
     public String getJhemeCode();
     public int getEventType();
+
+    public int getNoteId();
+    public void setNoteId(int id);
 }

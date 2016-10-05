@@ -126,10 +126,10 @@ public class EventManager {
         try {
             final int type = data.getInt("type");
             final String jhemeProgram = data.getString("note");
-
+            AbstractEvent returnValue;
             if (type == LOCATION_ENTER) {
 
-                return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
+                returnValue = new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
                     @Override
                     public void onEnter() {
                         try {
@@ -152,7 +152,7 @@ public class EventManager {
                 };
 
             } else if (type == LOCATION_EXIT) {
-                return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
+                returnValue =  new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
                     @Override
                     public void onEnter() {
                     }
@@ -174,7 +174,7 @@ public class EventManager {
                 };
 
             } else if (type == WIFI_ENTER) {
-                return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
+                returnValue =  new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
                     @Override
                     public void onEnter() {
                         try{
@@ -196,7 +196,7 @@ public class EventManager {
                 };
 
             } else if (type == WIFI_EXIT) {
-                return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
+                returnValue =  new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
                     @Override
                     public void onEnter() {
                     }
@@ -218,7 +218,7 @@ public class EventManager {
                 };
 
             } else if (type == BLUETOOTH_ENTER) {
-                return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
+                returnValue =  new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
                     @Override
                     public void onEnter() {
                         try{
@@ -240,7 +240,7 @@ public class EventManager {
                 };
 
             } else if (type == BLUETOOTH_EXIT) {
-                return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
+                returnValue =  new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
                     @Override
                     public void onEnter() {
                     }
@@ -264,6 +264,18 @@ public class EventManager {
             } else {
                 return null;
             }
+
+            if(data.has("noteid")){
+                try{
+                    int noteid = data.getInt("noteid");
+                    returnValue.setNoteId(noteid);
+                } catch (Exception exception){
+                    //Fail silently
+                }
+            }
+
+            return returnValue;
+
         } catch (JSONException e){
             return null;
         }

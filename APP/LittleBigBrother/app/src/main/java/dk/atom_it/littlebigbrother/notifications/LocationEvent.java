@@ -16,6 +16,8 @@ public abstract class LocationEvent implements AbstractEvent{
     private LatLng location;
     private Double radius;
 
+    private int noteID;
+
     public LocationEvent(LatLng loc, Double radius){
         this.location = loc;
         this.radius = radius;
@@ -47,6 +49,16 @@ public abstract class LocationEvent implements AbstractEvent{
 
     public Double getRadius(){
         return this.radius;
+    }
+
+    @Override
+    public int getNoteId() {
+        return this.noteID;
+    }
+
+    @Override
+    public void setNoteId(int id){
+        this.noteID = id;
     }
 
 

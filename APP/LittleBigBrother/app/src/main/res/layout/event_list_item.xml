@@ -27,9 +27,19 @@
 
         <TextView
             android:text="Position Enter"
-            android:layout_width="match_parent"
+            android:layout_width="136dp"
             android:layout_height="wrap_content"
-            android:id="@+id/NoteTypeText" />
+            android:id="@+id/NoteTypeText"
+            android:layout_weight="0.73" />
+
+        <TextView
+            android:text="-1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/NoteIDLabel"
+            android:textSize="8sp"
+            android:layout_weight="0.15"
+            android:elevation="1dp" />
     </LinearLayout>
 
     <LinearLayout
