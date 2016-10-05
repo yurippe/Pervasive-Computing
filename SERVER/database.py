@@ -37,7 +37,7 @@ def checkDB():
     conn = connectDB()
     c = conn.cursor()
 
-    drop_the_tables()
+    #drop_the_tables()
 
     #CREATE TABLE IF NOT EXISTS foo (int x, ...)
     #Milestone 2
