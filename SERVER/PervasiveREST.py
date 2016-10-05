@@ -195,15 +195,15 @@ def add_note():
 
     if user:
         #What type of note is it?
-        if json["type"] <= 7:
+        if json["type"] <= 6:
             #Pure note
             id = database.add_note(json["type"], user.ID, json["note"])
 
-            if json["type"] in [0, 1, 2, 3, 4]:
+            if json["type"] in [0, 1, 2, 3]:
                 #Bluetooth / Wifi based
                 database.add_notefilter(id, json["filtertype"], json["filter"])
 
-            elif json["type"] in [5, 6]:
+            elif json["type"] in [4, 5]:
                 # Locationsbased
                 database.add_noteloc(id, json["radius"], json["lat"], json["lng"])
 

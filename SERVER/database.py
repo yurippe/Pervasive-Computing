@@ -398,7 +398,7 @@ def get_all_notes():
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT noteid, notetype, note FROM notes WHERE notetype = 7;")
+    c.execute("SELECT noteid, notetype, note FROM notes WHERE notetype = 6;")
     result = c.fetchall()
 
     notes = [{"noteid": note[0], "type": note[1], "note": note[2]} for note in result]
