@@ -1,5 +1,6 @@
 package dk.atom_it.littlebigbrother;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -123,7 +124,7 @@ public class AddEventListener extends AppCompatActivity {
                             } catch (JSONException jsonexcept){
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
-                            processJSON(json);
+                            processJSON(json, tthis);
                         }
                     });
 
@@ -158,7 +159,7 @@ public class AddEventListener extends AppCompatActivity {
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
                             Toast.makeText(tthis, "Event has been added", Toast.LENGTH_LONG).show();
-                            processJSON(json);
+                            processJSON(json, tthis);
                         }
                     });
 
@@ -175,11 +176,11 @@ public class AddEventListener extends AppCompatActivity {
         });
     }
 
-    private void processJSON(JSONObject json){
-        final AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, this);
+    private static void processJSON(JSONObject json, final Activity activity){
+        final AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, activity);
         //Update server
         if(Globals.getInstance().token != null) {
-            final AddEventListener tthis = this;
+            //final AddEventListener tthis = this;
             NetworkingSucks.addNote(json.toString(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -204,10 +205,10 @@ public class AddEventListener extends AppCompatActivity {
                 }
 
                 private void AnErrorOccured(final String message){
-                    runOnUiThread(new Runnable() {
+                    activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(tthis, message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
                         }
                     });
                 }
