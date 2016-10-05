@@ -49,9 +49,19 @@ public class AddEventListener extends AppCompatActivity {
         eventTestCodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JhemeInterpreter interpreter = new JhemeInterpreter(tthis);
-                interpreter.setExtra("test", "does this work ?");
-                interpreter.eval(jhemeCode.getText().toString());
+                try {
+                    JhemeInterpreter interpreter = new JhemeInterpreter(tthis);
+                    interpreter.eval(jhemeCode.getText().toString());
+                    Toast.makeText(tthis, "Everything a-ok", Toast.LENGTH_LONG).show();
+                } catch (RuntimeException runtimeEx){
+                    if(runtimeEx.getMessage() != null) {
+                        Toast.makeText(tthis, runtimeEx.getMessage(), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(tthis, "Syntax error", Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception anyException) {
+                    Toast.makeText(tthis, anyException.getMessage(), Toast.LENGTH_LONG).show();
+                }
             }
         });
 
