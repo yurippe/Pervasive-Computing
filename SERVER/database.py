@@ -347,16 +347,25 @@ def get_notes(owner):
     conn = connectDB()
     c = conn.cursor()
 
+    #Type 7
+    c.execute("SELECT noteid, `type`, note FROM notes WHERE owner = '%s' AND `type` = 7" % (owner))
+    result = c.fetchall()
+
+    notes = [{"noteid": note[0], "type": note[1], "note": note[2]} for note in result]
+
+    #Type 5-6
     c.execute("SELECT noteid, `type`, note, radius, lat, lng FROM notes NATURAL JOIN noteloc WHERE owner = '%s';" % (owner))
     result = c.fetchall()
 
-    notes = [{"noteid": note[0], "type": note[1], "note": note[2],
-                 "radius": note[3], "lat": note[4], "lng": note[5]} for note in result]
+    notes += [{"noteid": note[0], "type": note[1], "note": note[2],
+              "radius": note[3], "lat": note[4], "lng": note[5]} for note in result]
 
+    #Type 0-4
     c.execute("SELECT noteid, `type`, note, filtertype, filter FROM notes NATURAL JOIN notebluewhy WHERE owner = '%s';" % (owner))
     result = c.fetchall()
 
-    notes += [{"noteid": note[0], "type": note[1], "note": note[2], "filtertype": note[3], "filter": note[4]} for note in result]
+    notes += [{"noteid": note[0], "type": note[1], "note": note[2],
+               "filtertype": note[3], "filter": note[4]} for note in result]
 
     conn.close()
     return notes
@@ -365,6 +374,11 @@ def get_notes(owner):
 def get_all_notes():
     conn = connectDB()
     c = conn.cursor()
+
+    c.execute("SELECT noteid, `type`, note FROM notes WHERE `type` = 7 ")
+    result = c.fetchall()
+
+    notes = [{"noteid": note[0], "type": note[1], "note": note[2]} for note in result]
 
     c.execute("SELECT noteid, owner, `type`, note, radius, lat, lng FROM notes NATURAL JOIN noteloc;")
     result = c.fetchall()

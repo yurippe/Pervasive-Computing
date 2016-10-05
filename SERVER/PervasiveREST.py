@@ -180,7 +180,7 @@ def get_notes():
         user = database.get_user_object_from_token(json["token"])
 
         if user:
-            return JSON.dumps(database.get_notes(user.ID))
+            return JSON.dumps(util.makeResponseDict(data=database.get_notes(user.ID)))
         else:
             return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
     else:
@@ -199,11 +199,11 @@ def add_note():
             #Pure note
             id = database.add_note(json["type"], user.ID, json["note"])
 
-            if json["type"] in [0, 1, 2, 3]:
+            if json["type"] in [0, 1, 2, 3, 4]:
                 #Bluetooth / Wifi based
                 database.add_notefilter(id, json["filtertype"], json["filter"])
 
-            elif json["type"] in [4, 5]:
+            elif json["type"] in [5, 6]:
                 # Locationsbased
                 database.add_noteloc(id, json["radius"], json["lat"], json["lng"])
 
