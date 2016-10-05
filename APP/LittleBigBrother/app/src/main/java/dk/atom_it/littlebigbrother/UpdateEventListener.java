@@ -91,6 +91,7 @@ public class UpdateEventListener extends AppCompatActivity {
 
         //Common fields
         final EditText jheme = (EditText) findViewById(R.id.NoteUJheme);
+        jheme.setText(event.getJhemeCode());
 
         final Spinner spinner = (Spinner) findViewById((R.id.NoteUSpinner));
         final ArrayAdapter<CharSequence> eventTypeAdapter = ArrayAdapter.createFromResource(this, R.array.event_types, android.R.layout.simple_spinner_item);
