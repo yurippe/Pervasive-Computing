@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import dk.atom_it.littlebigbrother.JhemeExtensions.JhemeInterpreter;
+import dk.atom_it.littlebigbrother.data.Globals;
 import dk.atom_it.littlebigbrother.notifications.AbstractEvent;
 import dk.atom_it.littlebigbrother.notifications.BluetoothEvent;
 import dk.atom_it.littlebigbrother.notifications.EventManager;
@@ -99,6 +100,7 @@ public class AddEventListener extends AppCompatActivity {
 
                             JSONObject json = new JSONObject();
                             try {
+                                json.put("token", Globals.getInstance().token);
                                 json.put("type", type);
                                 json.put("note", jhemeProgram);
                                 json.put("lat", lat);
@@ -136,6 +138,7 @@ public class AddEventListener extends AppCompatActivity {
 
                             JSONObject json = new JSONObject();
                             try {
+                                json.put("token", Globals.getInstance().token);
                                 json.put("type", type);
                                 json.put("note", jhemeProgram);
                                 json.put("filtertype", (inp_filtertype.isChecked() ? 0 : 1));
