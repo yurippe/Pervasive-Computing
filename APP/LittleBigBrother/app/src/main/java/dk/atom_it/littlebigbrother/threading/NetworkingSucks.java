@@ -26,8 +26,9 @@ public class NetworkingSucks {
     private Activity activity;
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private String baseURL;
+    private static String baseURL;
     private static String e_updatePosition = "/updatepos";
+    private static String e_addNote = "/addnote";
 
     private HashMap<String, Call> calls = new HashMap<>();
 
@@ -69,7 +70,11 @@ public class NetworkingSucks {
 
     }
 
-    public Call makeCall(String url, String data, Callback callback){
+    public static Call addNote(String jsonNote, Callback callback){
+        return makeCall(e_addNote, jsonNote, callback);
+    }
+
+    public static Call makeCall(String url, String data, Callback callback){
         RequestBody body = RequestBody.create(JSON, data);
         Request request = new Request.Builder()
                 .url(baseURL + url)
