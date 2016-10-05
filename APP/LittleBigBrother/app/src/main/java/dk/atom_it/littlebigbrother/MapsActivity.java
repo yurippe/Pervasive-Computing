@@ -39,6 +39,7 @@ import dk.atom_it.littlebigbrother.managers.BluetoothListener;
 import dk.atom_it.littlebigbrother.managers.BluetoothManager;
 import dk.atom_it.littlebigbrother.managers.WiFiListener;
 import dk.atom_it.littlebigbrother.managers.WiFiManager;
+import dk.atom_it.littlebigbrother.notifications.AbstractEvent;
 import dk.atom_it.littlebigbrother.notifications.BluetoothEvent;
 import dk.atom_it.littlebigbrother.notifications.EventManager;
 import dk.atom_it.littlebigbrother.notifications.LocationEvent;
@@ -88,44 +89,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         WiFiManager.getInstance(this).scanWifi(this);
 
         networkingSucks = new NetworkingSucks(this);
-
-
-        //Example Location Event
-        EventManager.getInstance().queueListener(new LocationEvent(new LatLng(10.0, 10.0), 2000.0) {
-            @Override
-            public void onEnter() {
-                Toast.makeText(tthis, "OnEnter 10.0 ; 10.0", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onExit() {
-                Toast.makeText(tthis, "OnExit 10.0 ; 10.0", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public String getJhemeCode(){
-                return "";
-            }
-        });
-
-        //Example Bluetooth Event
-        EventManager.getInstance().queueListener(new BluetoothEvent("9C:D2:1E:61:B3:C1", BluetoothEvent.FILTER_MAC) {
-            @Override
-            public void onEnter() {
-                Toast.makeText(tthis, "Found Kristians PC", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onExit() {
-                Toast.makeText(tthis, "Oh noes, lost Kristians PC", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public String getJhemeCode(){
-                return "";
-            }
-        });
-
     }
 
     @Override
@@ -138,7 +101,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onPause(){
         super.onPause();
-
     }
 
     @Override
@@ -181,58 +143,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             System.err.println("Exception! No permission");
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();
         }
+
         if(Globals.getInstance().token != null){
-            userupdates = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    HashMap<Integer, User> users = new HashMap<>();
-                    Endpoint endpoint = new Endpoint(tthis, "/userspos");
-
-                    HashMap<String, String> credentials = new HashMap<>();
-                    credentials.put("token", Globals.getInstance().token);
-                    String data = new JSONObject(credentials).toString();
-
-                    while (true) {
-                        String resp = endpoint.syncCall(data);
-                        try {
-                            if (resp != null) {
-                                JSONArray userarray = new JSONArray(resp);
-                                for (int i = 0; i < userarray.length(); i++) {
-                                    JSONObject singularUser = userarray.getJSONObject(i);
-                                    int uid = singularUser.getInt("userid");
-                                    if (users.containsKey(uid)) {
-                                        users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                                singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                                singularUser.getString("lastseen"));
-                                    } else {
-                                        users.put(uid, new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
-                                                singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                                singularUser.getString("lastseen")));
-                                    }
-                                }
-                            } else {
-                                //Toast.makeText(tthis, "Server unreachable, will reconnect in 10 sec", Toast.LENGTH_SHORT).show();
-                                try {
-                                    Thread.sleep(10000);
-                                } catch (Exception e) {
-                                    //Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-                            }
-                        } catch (JSONException e) {
-                            //meh... don't let them know
-                        }
-
-                        try {
-                            Thread.sleep(5000);
-                        } catch (Exception e) {
-                            //Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    }
-                }
-            });
-            userupdates.start();
+            startUserUpdates();
+            getCloudNotes();
         }
     }
 
@@ -290,6 +204,86 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Intent intent = new Intent(this, Login.class);
         this.startActivity(intent);
+    }
+
+    private void startUserUpdates(){
+        userupdates = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HashMap<Integer, User> users = new HashMap<>();
+                    Endpoint endpoint = new Endpoint(tthis, "/userspos");
+
+                    HashMap<String, String> credentials = new HashMap<>();
+                    credentials.put("token", Globals.getInstance().token);
+                    String data = new JSONObject(credentials).toString();
+
+                    while (true) {
+                        String resp = endpoint.syncCall(data);
+                        try {
+                            if (resp != null) {
+                                JSONArray userarray = new JSONArray(resp);
+                                for (int i = 0; i < userarray.length(); i++) {
+                                    JSONObject singularUser = userarray.getJSONObject(i);
+                                    int uid = singularUser.getInt("userid");
+                                    if (users.containsKey(uid)) {
+                                        users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                                singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                                singularUser.getString("lastseen"));
+                                    } else {
+                                        users.put(uid, new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                                singularUser.getString("displayname"), singularUser.getInt("online") != 0,
+                                                singularUser.getString("lastseen")));
+                                    }
+                                }
+                            } else {
+                                //Toast.makeText(tthis, "Server unreachable, will reconnect in 10 sec", Toast.LENGTH_SHORT).show();
+                                try {
+                                    Thread.sleep(10000);
+                                } catch (Exception e) {
+                                    //Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            }
+                        } catch (JSONException e) {
+                            //meh... don't let them know
+                        }
+
+                        try {
+                            Thread.sleep(5000);
+                        } catch (Exception e) {
+                            //Toast.makeText(tthis, "user updating crashed!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }}}
+        });
+        userupdates.start();
+    }
+
+    private void getCloudNotes(){
+        //Flushing?
+        EventManager.getInstance().clearListeners();
+
+        //Get all events saved in the cloud... because clouds are the shit!
+        HashMap<String, String> credentials = new HashMap<>();
+        credentials.put("token", Globals.getInstance().token);
+        String data = new JSONObject(credentials).toString();
+
+        Endpoint endpoint = new Endpoint(tthis, "/getnotes");
+
+        try{
+            String resp = endpoint.syncCall(data);
+            if (resp != null){
+                JSONArray notearray = new JSONArray(resp);
+                for(int i = 0; i < notearray.length(); i++){
+                    JSONObject singleNote = notearray.getJSONObject(i);
+                    AbstractEvent event = EventManager.getInstance().fromJSON(singleNote, tthis);
+                    EventManager.getInstance().queueListener(event);
+                }
+            } else {
+                getCloudNotes();
+            }
+        } catch(JSONException e) {
+            getCloudNotes();
+        }
     }
 
     @Override
