@@ -70,6 +70,18 @@ public class NetworkingSucks {
 
     }
 
+    public static Call addNote(String jsonNote){
+        return addNote(jsonNote, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {}
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                response.close();
+            }
+        });
+    }
+
     public static Call addNote(String jsonNote, Callback callback){
         return makeCall(e_addNote, jsonNote, callback);
     }

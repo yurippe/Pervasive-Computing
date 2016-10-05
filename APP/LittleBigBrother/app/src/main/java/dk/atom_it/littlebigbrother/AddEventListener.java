@@ -17,9 +17,16 @@ import android.widget.ToggleButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 import dk.atom_it.littlebigbrother.JhemeExtensions.JhemeInterpreter;
+import dk.atom_it.littlebigbrother.notifications.AbstractEvent;
 import dk.atom_it.littlebigbrother.notifications.BluetoothEvent;
 import dk.atom_it.littlebigbrother.notifications.EventManager;
+import dk.atom_it.littlebigbrother.threading.NetworkingSucks;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class AddEventListener extends AppCompatActivity {
 
@@ -91,7 +98,7 @@ public class AddEventListener extends AppCompatActivity {
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
 
-                            //TODO stuff with json here
+                            processJSON(json);
 
                         }
                     });
@@ -127,7 +134,7 @@ public class AddEventListener extends AppCompatActivity {
                                 Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
 
-                            //TODO stuff with json here
+                            processJSON(json);
                         }
                     });
 
@@ -143,6 +150,14 @@ public class AddEventListener extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void processJSON(JSONObject json){
+        //Update server
+        NetworkingSucks.addNote(json.toString());
+        //Add it to the scheduler
+        AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, this);
+        EventManager.getInstance().queueListener(newEvent);
     }
 
 }

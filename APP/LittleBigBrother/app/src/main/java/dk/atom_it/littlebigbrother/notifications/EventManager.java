@@ -83,6 +83,13 @@ public class EventManager {
         }
     }
 
+    public void queueListener(AbstractEvent event) {
+        if(event instanceof WifiEvent){queueListener((WifiEvent) event);}
+        else if(event instanceof BluetoothEvent){queueListener((BluetoothEvent) event);}
+        else if(event instanceof LocationEvent){queueListener((LocationEvent) event);}
+        else {/*ok ? */ return;}
+    }
+
     public void queueListener(WifiEvent event){
         wifiEvents.add(event);
     }
