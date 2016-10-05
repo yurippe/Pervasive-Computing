@@ -1,6 +1,7 @@
 package dk.atom_it.littlebigbrother;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -62,6 +63,15 @@ public class AddEventListener extends AppCompatActivity {
                 } catch (Exception anyException) {
                     Toast.makeText(tthis, anyException.getMessage(), Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+        
+        Button eventLists = (Button) findViewById(R.id.eventLists);
+        eventLists.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent toList = new Intent(tthis, EventList.class);
+                tthis.startActivity(toList);
             }
         });
 
@@ -160,6 +170,10 @@ public class AddEventListener extends AppCompatActivity {
 
             }
         });
+
+
+
+
     }
 
     private void processJSON(JSONObject json){
