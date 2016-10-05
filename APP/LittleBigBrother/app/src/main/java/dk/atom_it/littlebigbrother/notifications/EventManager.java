@@ -102,6 +102,12 @@ public class EventManager {
         locationEvents.add(event);
     }
 
+    public void clearListeners(){
+        wifiEvents.clear();
+        bluetoothEvents.clear();
+        locationEvents.clear();
+    }
+
     public AbstractEvent fromJSON(String data, final Activity activity){
         try{return fromJSON(new JSONObject(data), activity);}
         catch (JSONException e){return null;}
