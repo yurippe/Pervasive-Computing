@@ -27,7 +27,7 @@ def generate_token(username):
 
 
 def connectDB():
-    dbpath = os.path.join(os.path.realpath(__file__), 'dPerv.db')
+    dbpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dPerv.db')
     conn = sqlite3.connect(dbpath)
     return conn
 
