@@ -1,12 +1,19 @@
 package dk.atom_it.littlebigbrother.notifications;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.location.Location;
 import android.net.wifi.ScanResult;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import dk.atom_it.littlebigbrother.JhemeExtensions.JhemeInterpreter;
 import dk.atom_it.littlebigbrother.data.Haversine;
 
 /**
@@ -70,6 +77,107 @@ public class EventManager {
 
     public void queueListener(LocationEvent event){
         locationEvents.add(event);
+    }
+
+    public AbstractEvent fromJSON(String data, final Activity activity){
+        try{return fromJSON(new JSONObject(data), activity);}
+        catch (JSONException e){return null;}
+    }
+
+    public AbstractEvent fromJSON(JSONObject data, final Activity activity) {
+
+        //{noteid, type, note} + (for types 4 & 5) {lat, lng, radius} + (for types 0,1,2,3) {filtertype [range 0-1], filter}
+        try {
+            int type = data.getInt("type");
+            final String jhemeProgram = data.getString("note");
+
+            if (type == LOCATION_ENTER) {
+
+                return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
+                    @Override
+                    public void onEnter() {
+                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                        jheme.eval(jhemeProgram);
+                    }
+
+                    @Override
+                    public void onExit() {
+                    }
+                };
+
+            } else if (type == LOCATION_EXIT) {
+                return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
+                    @Override
+                    public void onEnter() {
+                    }
+
+                    @Override
+                    public void onExit() {
+                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                        jheme.eval(jhemeProgram);
+                    }
+                };
+
+            } else if (type == WIFI_ENTER) {
+                return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    @Override
+                    public void onEnter() {
+                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                        jheme.eval(jhemeProgram);
+                    }
+
+                    @Override
+                    public void onExit() {
+                    }
+                };
+
+            } else if (type == WIFI_EXIT) {
+                return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    @Override
+                    public void onEnter() {
+                    }
+
+                    @Override
+                    public void onExit() {
+                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                        jheme.eval(jhemeProgram);
+                    }
+                };
+
+            } else if (type == BLUETOOTH_ENTER) {
+                return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    @Override
+                    public void onEnter() {
+                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                        jheme.eval(jhemeProgram);
+                    }
+
+                    @Override
+                    public void onExit() {
+                    }
+                };
+
+            } else if (type == BLUETOOTH_EXIT) {
+                return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    @Override
+                    public void onEnter() {
+                    }
+
+                    @Override
+                    public void onExit() {
+                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                        jheme.eval(jhemeProgram);
+                    }
+                };
+
+            } else {
+                return null;
+            }
+        } catch (JSONException e){
+            return null;
+        }
+
+
     }
 
 

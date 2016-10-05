@@ -32,7 +32,7 @@ public class JhemeRESTPOST extends SchemeProcedure {
         String url = "";
         String mediatype = "application/json; charset=utf-8";
         String data = "";
-        SchemeProcedure onSuccess = null;
+        SchemeProcedure onSuccess;
         SchemeProcedure onFailure = null;
 
         if(args.length == 5){
