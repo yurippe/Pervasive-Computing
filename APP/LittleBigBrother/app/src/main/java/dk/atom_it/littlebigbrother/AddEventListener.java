@@ -1,13 +1,21 @@
 package dk.atom_it.littlebigbrother;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import dk.atom_it.littlebigbrother.JhemeExtensions.JhemeInterpreter;
 import dk.atom_it.littlebigbrother.notifications.BluetoothEvent;
@@ -44,28 +52,95 @@ public class AddEventListener extends AppCompatActivity {
         eventAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(tthis, "Selected: " + eventTypeAdapter.getItem(eventTypeSpinner.getSelectedItemPosition()), Toast.LENGTH_LONG).show();
-                /*JhemeInterpreter jheme = new JhemeInterpreter(tthis);
-                try {
-                    jheme.eval(jhemeCode.getText().toString());
-                } catch (Exception e){
-                    Toast.makeText(tthis, "Not valid Jheme code", Toast.LENGTH_LONG).show();
-                }*/
-                if(eventTypeSpinner.getSelectedItemPosition() == 0){ //On bluetooth enter
-                    EventManager.getInstance().queueListener(new BluetoothEvent("9C:D2:1E:61:B3:C1", BluetoothEvent.FILTER_MAC) {
+                //{type, note} + (for types 4 & 5) {lat, lng, radius} + (for types 0,1,2,3) {filtertype [range 0-1], filter}
+                final int type = eventTypeSpinner.getSelectedItemPosition();
+                final String jhemeProgram = jhemeCode.getText().toString();
 
-                        @Override
-                        public void onEnter() {
-                            JhemeInterpreter jheme = new JhemeInterpreter(tthis);
-                            jheme.eval(jhemeCode.getText().toString()); //WARNING: this CAN crash the app if scheme code is invalid (use try catch to avoid)
-                        }
+                AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
 
+                if(type == 4 || type == 5) {
+                    builder.setTitle("Location");
+                    View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_location, (ViewGroup) view.getRootView(), false);
+                    builder.setView(inflated);
+
+                    final TextView txt_lat = (TextView) inflated.findViewById(R.id.dialog_lat);
+                    final TextView txt_lng = (TextView) inflated.findViewById(R.id.dialog_lng);
+                    final TextView txt_radius = (TextView) inflated.findViewById(R.id.dialog_radius);
+
+
+                    builder.setPositiveButton("Add", new DialogInterface.OnClickListener(){
                         @Override
-                        public void onExit() {
+                        public void onClick(DialogInterface dialog, int i) {
+                            dialog.dismiss();
+                            double lat; double lng; double radius;
+                            try{lat = Double.parseDouble(txt_lat.getText().toString());}
+                            catch (Exception exc){Toast.makeText(tthis, "Latitude is not a valid number", Toast.LENGTH_SHORT).show(); return;}
+                            try{lng = Double.parseDouble(txt_lng.getText().toString());}
+                            catch (Exception exc){Toast.makeText(tthis, "Longitude is not a valid number", Toast.LENGTH_SHORT).show(); return;}
+                            try{radius = Double.parseDouble(txt_radius.getText().toString());}
+                            catch (Exception exc){Toast.makeText(tthis, "Radius is not a valid number", Toast.LENGTH_SHORT).show(); return;}
+
+                            JSONObject json = new JSONObject();
+                            try {
+                                json.put("type", type);
+                                json.put("note", jhemeProgram);
+                                json.put("lat", lat);
+                                json.put("lng", lng);
+                                json.put("radius", radius);
+                            } catch (JSONException jsonexcept){
+                                Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
+                            }
+
+                            //TODO stuff with json here
 
                         }
                     });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            dialog.cancel();
+                        }
+                    });
+
+                } else {
+                    builder.setTitle("Filter");
+                    View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_wifibt, (ViewGroup) view.getRootView(), false);
+                    builder.setView(inflated);
+
+                    final TextView txt_filter = (TextView) inflated.findViewById(R.id.dialog_filter);
+                    final ToggleButton inp_filtertype = (ToggleButton) inflated.findViewById(R.id.dialog_filtertype);
+
+                    builder.setPositiveButton("Add", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            dialog.dismiss();
+
+
+                            JSONObject json = new JSONObject();
+                            try {
+                                json.put("type", type);
+                                json.put("note", jhemeProgram);
+                                json.put("filtertype", (inp_filtertype.isChecked() ? 0 : 1));
+                                json.put("filter", txt_filter.getText().toString());
+                            } catch (JSONException jsonexcept){
+                                Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
+                            }
+
+                            //TODO stuff with json here
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            dialog.cancel();
+                        }
+                    });
                 }
+
+                builder.show();
+
             }
         });
     }

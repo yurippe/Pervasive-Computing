@@ -22,6 +22,7 @@ public class JhemeInterpreter extends dk.atomit.Jheme.Interpreter.Interpreter {
         environment.put("extra", new JhemeGetExtra());
         environment.put("restpost", new JhemeRESTPOST());
         environment.put("readresponse", new JhemeReadResponse());
+        environment.put("gettoken", new JhemeGetToken());
         environment.put("test", new JhemeTest());
     }
 

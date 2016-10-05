@@ -33,10 +33,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import dk.atom_it.littlebigbrother.api.Endpoint;
+import dk.atom_it.littlebigbrother.data.Globals;
 import dk.atom_it.littlebigbrother.data.User;
 import dk.atom_it.littlebigbrother.managers.BluetoothListener;
 import dk.atom_it.littlebigbrother.managers.BluetoothManager;
 import dk.atom_it.littlebigbrother.managers.WiFiListener;
+import dk.atom_it.littlebigbrother.managers.WiFiManager;
 import dk.atom_it.littlebigbrother.notifications.BluetoothEvent;
 import dk.atom_it.littlebigbrother.notifications.EventManager;
 import dk.atom_it.littlebigbrother.notifications.LocationEvent;
@@ -50,8 +52,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private LocationManager locationManager;
 
-    private String token = "";
-    private String online = "true";
+    //private String token = "";
     private Marker myMapMarker;
 
     private final MapsActivity tthis = this;
@@ -69,7 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
-        token = getIntent().getStringExtra("token");
+        Globals.getInstance().token = getIntent().getStringExtra("token");
         
         Button map_button = (Button) findViewById(R.id.map_button);
         map_button.setText("Events");
@@ -84,6 +85,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         BluetoothManager.getInstance(this).scanBluetooth(this);
+        WiFiManager.getInstance(this).scanWifi(this);
+
         networkingSucks = new NetworkingSucks(this);
 
 
@@ -168,7 +171,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             System.err.println("Exception! No permission");
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();
         }
-        if(token != null){
+        if(Globals.getInstance().token != null){
             userupdates = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -176,7 +179,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Endpoint endpoint = new Endpoint(tthis, "/userspos");
 
                     HashMap<String, String> credentials = new HashMap<>();
-                    credentials.put("token", token);
+                    credentials.put("token", Globals.getInstance().token);
                     String data = new JSONObject(credentials).toString();
 
                     while (true) {
@@ -229,8 +232,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
 
         //Send movement to server
-        if(token != null){
-            networkingSucks.updatePosition(token, pos.latitude, pos.longitude);
+        if(Globals.getInstance().token != null){
+            networkingSucks.updatePosition(Globals.getInstance().token, pos.latitude, pos.longitude);
         }
 
         //Update marker
@@ -243,9 +246,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onBackPressed(){
-        if(token != null) {
+        if(Globals.getInstance().token != null) {
             HashMap<String, String> data = new HashMap<>();
-            data.put("token", token);
+            data.put("token", Globals.getInstance().token);
             JSONObject json = new JSONObject(data);
 
             Endpoint logout = new Endpoint(this, "/logout");
@@ -260,6 +263,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //The server always goes 200 on logout, but whatever... here it is...
                     try {
                         JSONObject jsonresp = new JSONObject(response.body().string());
+                        Globals.getInstance().token = null;
                         if (jsonresp.getInt("status") != 200) {
                             Toast.makeText(tthis, "Logout failed: " + jsonresp.getString("message"), Toast.LENGTH_SHORT).show();
                         }
@@ -325,12 +329,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onWiFiScanResults(List<ScanResult> results) {
-
+        EventManager.getInstance().onWifiUpdate(results);
     }
 
     @Override
     public void onWiFiScanCompleted() {
-
+        WiFiManager.getInstance(this).scanWifi(this, 7000);
     }
 
     @Override

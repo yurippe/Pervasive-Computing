@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:layout_marginTop="40px"
+        android:layout_marginBottom="30px">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ToggleButton
+                android:text="ToggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/dialog_filtertype"
+                android:layout_weight="1"
+                android:textOff="Filter by name"
+                android:textOn="Filter by MAC"
+                android:checked="true"
+                android:textColorLink="?attr/colorBackgroundFloating" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Filter"
+                android:layout_width="49dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView9" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="FF:FF:FF:FF:FF:FF"
+                android:ems="10"
+                android:id="@+id/dialog_filter"
+                android:layout_weight="1"
+                android:inputType="text" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
