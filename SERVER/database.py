@@ -35,6 +35,8 @@ def checkDB():
     conn = connectDB()
     c = conn.cursor()
 
+    drop_the_tables()
+
     #CREATE TABLE IF NOT EXISTS foo (int x, ...)
     #Milestone 2
     c.execute("CREATE TABLE IF NOT EXISTS users(userid INTEGER PRIMARY KEY AUTOINCREMENT, token VARCHAR(32), user VARCHAR(30) UNIQUE NOT NULL, hpass VARCHAR(32) NOT NULL, displayname VARCHAR(64));")
@@ -60,6 +62,24 @@ def checkDB():
         add_user("a", "a")
 
     conn.close()
+
+
+def drop_the_tables():
+    conn = connectDB()
+    c = conn.cursor()
+
+    # Milestone 2
+    c.execute("DROP TABLE IF EXISTS userinfo;")
+    c.execute("DROP TABLE IF EXISTS friends;")
+    c.execute("DROP TABLE IF EXISTS users;")
+    # Milestone 3
+    c.execute("DROP TABLE IF EXISTS deviceinfo;")
+    c.execute("DROP TABLE IF EXISTS devices;")
+    # Milestone 4
+    c.execute("DROP TABLE IF EXISTS notepos;")
+    c.execute("DROP TABLE IF EXISTS notebluewhy;")
+    c.execute("DROP TABLE IF EXISTS notes;")
+    conn.commit()
 
 
 ######################################################
