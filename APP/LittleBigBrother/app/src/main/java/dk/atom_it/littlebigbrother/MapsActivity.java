@@ -80,6 +80,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(final View view) {
                 Intent toList = new Intent(tthis, AddEventListener.class);
+                String username = getIntent().getStringExtra("username");
+                toList.putExtra("username", username);
                 tthis.startActivity(toList);
 
             }

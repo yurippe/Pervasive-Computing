@@ -13,6 +13,12 @@
     android:paddingBottom="40px">
 
 
+    <TextView
+        android:text="Logged in as user "
+        android:layout_width="match_parent"
+        android:id="@+id/user_label"
+        android:layout_height="30dp" />
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"

@@ -44,7 +44,10 @@ public class AddEventListener extends AppCompatActivity {
         final Spinner eventTypeSpinner = (Spinner) findViewById(R.id.event_type_spinner);
         final ArrayAdapter<CharSequence> eventTypeAdapter = ArrayAdapter.createFromResource(this, R.array.event_types, android.R.layout.simple_spinner_item);
         final TextView jhemeCode = (TextView) findViewById(R.id.event_code);
+        final TextView userLabel = (TextView) findViewById(R.id.user_label);
 
+        String username = getIntent().getStringExtra("username");
+        userLabel.setText("Logged in as " + username);
         eventTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         eventTypeSpinner.setAdapter(eventTypeAdapter);
 
