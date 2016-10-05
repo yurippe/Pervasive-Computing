@@ -29,6 +29,18 @@ public class EventManager {
     public static final int LOCATION_ENTER = 4;
     public static final int LOCATION_EXIT = 5;
 
+    public static String typeToString(int type){
+        switch (type){
+            case 0: return "Bluetooth Enter";
+            case 1: return "Bluetooth Exit";
+            case 2: return "Wifi Enter";
+            case 3: return "Wifi Exit";
+            case 4: return "Location Enter";
+            case 5: return "Location Exit";
+            default: return "Unknown (" + type + ")";
+        }
+    }
+
     //Singleton:
     private static EventManager eventManager;
     protected EventManager(){

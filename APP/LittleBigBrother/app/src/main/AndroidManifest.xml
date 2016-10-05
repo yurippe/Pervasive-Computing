@@ -67,6 +67,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="dk.atom_it.littlebigbrother.MapsActivity" />
         </activity>
+        <activity
+            android:name=".EventList"
+            android:label="@string/title_activity_event_list"
+            android:parentActivityName=".AddEventListener"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="dk.atom_it.littlebigbrother.AddEventListener" />
+        </activity>
     </application>
 
 </manifest>

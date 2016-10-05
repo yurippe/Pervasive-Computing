@@ -14,4 +14,5 @@
         <item>On Position Enter</item>
         <item>On Position Exit</item>
     </string-array>
+    <string name="title_activity_event_list">Event List</string>
 </resources>
