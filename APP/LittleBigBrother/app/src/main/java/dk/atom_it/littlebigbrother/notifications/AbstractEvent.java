@@ -6,6 +6,8 @@ package dk.atom_it.littlebigbrother.notifications;
 
 public interface AbstractEvent {
 
+    public int EVENT_TYPE = -1; //Not required
+
     public void onEnter();
     public void onExit();
     public String getJhemeCode();

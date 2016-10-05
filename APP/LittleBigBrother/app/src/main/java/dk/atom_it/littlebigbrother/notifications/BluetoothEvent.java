@@ -17,6 +17,7 @@ public abstract class BluetoothEvent implements AbstractEvent{
     private String filter;
     private boolean entered = false;
 
+
     public BluetoothEvent(String filter, int filter_type){
         this.filter = filter;
         this.type = filter_type;
@@ -52,6 +53,18 @@ public abstract class BluetoothEvent implements AbstractEvent{
             this.onExit();
             entered = false;
         }
+    }
+
+    public int getFilterType(){
+        return this.type;
+    }
+
+    public String getFilterTypeAsString(){
+        return (this.type == 0 ? "MAC" : "Name");
+    }
+
+    public String getFilter(){
+        return this.filter;
     }
 
 }

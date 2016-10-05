@@ -104,12 +104,13 @@ public class EventManager {
 
         //{noteid, type, note} + (for types 4 & 5) {lat, lng, radius} + (for types 0,1,2,3) {filtertype [range 0-1], filter}
         try {
-            int type = data.getInt("type");
+            final int type = data.getInt("type");
             final String jhemeProgram = data.getString("note");
 
             if (type == LOCATION_ENTER) {
 
                 return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
+                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                         try {
@@ -132,6 +133,7 @@ public class EventManager {
 
             } else if (type == LOCATION_EXIT) {
                 return new LocationEvent(new LatLng(data.getDouble("lat"), data.getDouble("lng")), data.getDouble("radius")) {
+                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                     }
@@ -154,6 +156,7 @@ public class EventManager {
 
             } else if (type == WIFI_ENTER) {
                 return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                         try{
@@ -176,6 +179,7 @@ public class EventManager {
 
             } else if (type == WIFI_EXIT) {
                 return new WifiEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                     }
@@ -198,6 +202,7 @@ public class EventManager {
 
             } else if (type == BLUETOOTH_ENTER) {
                 return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                         try{
@@ -220,6 +225,7 @@ public class EventManager {
 
             } else if (type == BLUETOOTH_EXIT) {
                 return new BluetoothEvent(data.getString("filter"), data.getInt("filtertype")) {
+                    public int EVENT_TYPE = type;
                     @Override
                     public void onEnter() {
                     }

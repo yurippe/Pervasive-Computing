@@ -54,4 +54,16 @@ public abstract class WifiEvent implements AbstractEvent {
         }
     }
 
+    public int getFilterType(){
+        return this.type;
+    }
+
+    public String getFilterTypeAsString(){
+        return (this.type == 0 ? "MAC" : "Name");
+    }
+
+    public String getFilter(){
+        return this.filter;
+    }
+
 }

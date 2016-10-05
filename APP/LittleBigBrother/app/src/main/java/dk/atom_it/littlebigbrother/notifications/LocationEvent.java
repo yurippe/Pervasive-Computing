@@ -41,6 +41,14 @@ public abstract class LocationEvent implements AbstractEvent{
         return Haversine.HaversineInM(this.location.latitude, this.location.longitude, loc.getLatitude(), loc.getLongitude()) < this.radius;
     }
 
+    public LatLng getLocation(){
+        return this.location;
+    }
+
+    public Double getRadius(){
+        return this.radius;
+    }
+
 
 
 }
