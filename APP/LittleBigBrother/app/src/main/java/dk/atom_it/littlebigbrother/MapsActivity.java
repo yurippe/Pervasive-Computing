@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import dk.atom_it.littlebigbrother.api.Endpoint;
@@ -147,8 +148,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         if(Globals.getInstance().token != null){
-            startUserUpdates();
+            getCloudFriends();
             getCloudNotes();
+            startUserUpdates();
         }
     }
 
@@ -262,38 +264,78 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getCloudNotes(){
-        //Flushing?
-        EventManager.getInstance().clearListeners();
 
-        //Get all events saved in the cloud... because clouds are the shit!
-        HashMap<String, String> credentials = new HashMap<>();
-        credentials.put("token", Globals.getInstance().token);
-        String data = new JSONObject(credentials).toString();
+        try{
+            //Flushing?
+            EventManager.getInstance().clearListeners();
 
-        Endpoint endpoint = new Endpoint(tthis, "/getnotes");
+            //Get all events saved in the cloud... because clouds are the shit!
+            JSONObject data = new JSONObject();
+            data.put("token", Globals.getInstance().token);
 
-        endpoint.call(data, new Callback() {
+            Endpoint endpoint = new Endpoint(tthis, "/getnotes");
+
+            endpoint.call(data.toString(), new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        //Fuck this... I'm out!
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try{
+                            JSONObject jsonresp = new JSONObject(response.body().string());
+                            JSONArray notearray = jsonresp.getJSONArray("data");
+
+                            for(int i = 0; i < notearray.length(); i++){
+                                JSONObject singleNote = notearray.getJSONObject(i);
+                                AbstractEvent event = EventManager.getInstance().fromJSON(singleNote, tthis);
+                                EventManager.getInstance().queueListener(event);
+                            }
+                        } catch (JSONException e) {
+                            //Fuck this... even more
+                        }
+                    }
+            });
+        } catch (JSONException e){
+            //Meh...
+        }
+    }
+
+    private void getCloudFriends(){
+        try{
+            JSONObject data = new JSONObject();
+            data.put("token", Globals.getInstance().token);
+
+            Endpoint endpoint = new Endpoint(tthis, "getfriends");
+            endpoint.call(data.toString(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    //Fuck this... I'm out!
+                    //No friends for you this time...
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try{
                         JSONObject jsonresp = new JSONObject(response.body().string());
-                        JSONArray notearray = jsonresp.getJSONArray("data");
+                        JSONArray friendarray = jsonresp.getJSONArray("data");
 
-                        for(int i = 0; i < notearray.length(); i++){
-                            JSONObject singleNote = notearray.getJSONObject(i);
-                            AbstractEvent event = EventManager.getInstance().fromJSON(singleNote, tthis);
-                            EventManager.getInstance().queueListener(event);
+                        Globals.getInstance().friendid = new HashSet<Integer>();
+
+                        for(int i = 0; i < friendarray.length(); i++){
+                            JSONObject friend = friendarray.getJSONObject(i);
+                            Globals.getInstance().friendid.add(friend.getInt("userid"));
                         }
+
                     } catch (JSONException e) {
-                        //Fuck this... even more
+                        //No friends here either
                     }
                 }
-        });
+            })
+
+        } catch(JSONException e){
+            //Meh...
+        }
     }
 
     @Override

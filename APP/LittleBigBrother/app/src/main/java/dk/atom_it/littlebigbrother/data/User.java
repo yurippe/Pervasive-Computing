@@ -25,6 +25,8 @@ public class User {
     private boolean online;
     private String lastseen;
 
+    private boolean isFriend;
+
     public User(final MapsActivity mActivity, final GoogleMap inmMap, final int userid, final double lat,
                 final double lng, final String displayname, final boolean online, final String lastseen){
         this.mActivity = mActivity;
@@ -38,6 +40,12 @@ public class User {
         this.displayname = displayname;
         this.online = online;
         this.lastseen = lastseen;
+
+        if(Globals.getInstance().friendid != null){
+            this.isFriend = Globals.getInstance().friendid.contains(userid);
+        } else {
+            isFriend = false;
+        }
 
         mActivity.runOnUiThread(new Runnable() {
             @Override
@@ -82,12 +90,23 @@ public class User {
             public void run() {
                 marker.setPosition(new LatLng(lat, lng));
                 String title = "" + displayname;
-                if(online){
+
+                if(Globals.getInstance().friendid != null){
+                    isFriend = Globals.getInstance().friendid.contains(userid);
+                } else {
+                    isFriend = false;
+                }
+
+                if(isFriend){
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
+                } else {
                     marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
+                }
+
+                if(online){
                     marker.setAlpha((float) 0.9);
                     title = title + ", online";
                 } else {
-                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(200));
                     marker.setAlpha((float) 0.2);
                     title = title + ", offline";
                 }

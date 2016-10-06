@@ -2,6 +2,8 @@ package dk.atom_it.littlebigbrother.data;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Set;
+
 import dk.atom_it.littlebigbrother.notifications.AbstractEvent;
 
 /**
@@ -15,6 +17,8 @@ public class Globals {
     public LatLng userPosition = null;
 
     public AbstractEvent tempEvent = null;
+
+    public Set<Integer> friendid = null;
 
     //Singleton stuff:
     private static Globals instance;
