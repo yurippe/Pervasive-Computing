@@ -1,6 +1,7 @@
 package dk.atom_it.littlebigbrother;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -124,62 +126,7 @@ public class AddEventListener extends AppCompatActivity {
 
                     //Map button
                     final Button mapButt = (Button) inflated.findViewById(R.id.dialog_map);
-                    mapButt.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            //Map lat lng picker
-                            final AlertDialog.Builder mapBuilder = new AlertDialog.Builder(tthis);
-                            mapBuilder.setTitle("Choose location");
-
-                            View mapView = LayoutInflater.from(tthis).inflate(R.layout.dialog_map, (ViewGroup) v.getRootView(), false);
-                            mapBuilder.setView(mapView);
-
-                            MapFragment map = (MapFragment) tthis.getFragmentManager().findFragmentById(R.id.dialog_mapFragment);
-
-                            map.getMapAsync(new OnMapReadyCallback() {
-                                @Override
-                                public void onMapReady(final GoogleMap googleMap) {
-                                    LatLng pos = Globals.getInstance().userPosition;
-
-                                    final Marker marker = googleMap.addMarker(new MarkerOptions().position(pos).title("Move Me!"));
-                                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(30));
-                                    marker.setAlpha((float) 0.9);
-                                    marker.setDraggable(false);
-
-                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 13));
-
-
-                                    googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener(){
-                                        @Override
-                                        public void onCameraMove() {
-                                            LatLng newpos = googleMap.getCameraPosition().target;
-                                            marker.setPosition(newpos);
-                                        }
-                                    });
-
-                                    mapBuilder.setPositiveButton("set", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            txt_lat.setText(marker.getPosition().latitude + "");
-                                            txt_lng.setText(marker.getPosition().longitude + "");
-                                            dialog.dismiss();
-                                        }
-                                    });
-
-                                    mapBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                        }
-                                    });
-
-                                    mapBuilder.show();
-                                }
-                            });
-
-
-                        }
-                    });
+                    mapButt.setOnClickListener(mapPopUp(tthis, Globals.getInstance().userPosition, txt_lat, txt_lng));
 
                     //Add button
                     builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
@@ -354,5 +301,60 @@ public class AddEventListener extends AppCompatActivity {
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         AppIndex.AppIndexApi.end(client, getIndexApiAction());
         client.disconnect();
+    }
+
+    public static View.OnClickListener mapPopUp(final Activity tthis, final LatLng pos, final TextView dialogLAT, final TextView dialogLNG){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Map lat lng picker
+                final AlertDialog.Builder mapBuilder = new AlertDialog.Builder(tthis);
+                mapBuilder.setTitle("Choose location");
+
+                View mapView = LayoutInflater.from(tthis).inflate(R.layout.dialog_map, (ViewGroup) v.getRootView(), false);
+                mapBuilder.setView(mapView);
+
+                MapFragment map = (MapFragment) tthis.getFragmentManager().findFragmentById(R.id.dialog_mapFragment);
+
+                map.getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(final GoogleMap googleMap) {
+                        final Marker marker = googleMap.addMarker(new MarkerOptions().position(pos).title("Move Me!"));
+                        marker.setIcon(BitmapDescriptorFactory.defaultMarker(30));
+                        marker.setAlpha((float) 0.9);
+                        marker.setDraggable(false);
+
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 13));
+
+
+                        googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener(){
+                            @Override
+                            public void onCameraMove() {
+                                LatLng newpos = googleMap.getCameraPosition().target;
+                                marker.setPosition(newpos);
+                            }
+                        });
+
+                        mapBuilder.setPositiveButton("set", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialogLAT.setText(marker.getPosition().latitude + "");
+                                dialogLNG.setText(marker.getPosition().longitude + "");
+                                dialog.dismiss();
+                            }
+                        });
+
+                        mapBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                        mapBuilder.show();
+                    }
+                });
+            }
+        };
     }
 }

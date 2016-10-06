@@ -307,7 +307,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             JSONObject data = new JSONObject();
             data.put("token", Globals.getInstance().token);
 
-            Endpoint endpoint = new Endpoint(tthis, "getfriends");
+            Endpoint endpoint = new Endpoint(tthis, "/getfriends");
             endpoint.call(data.toString(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -331,7 +331,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //No friends here either
                     }
                 }
-            })
+            });
 
         } catch(JSONException e){
             //Meh...

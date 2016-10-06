@@ -1,9 +1,13 @@
 package dk.atom_it.littlebigbrother;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -11,6 +15,15 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +50,7 @@ public class UpdateEventListener extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_event_listener);
+        final UpdateEventListener tthis = this;
 
         //Common values from intent
         event = Globals.getInstance().tempEvent;
@@ -89,6 +103,11 @@ public class UpdateEventListener extends AppCompatActivity {
             //wtf?
         }
 
+        //Map button
+        final Button mapButt = (Button) findViewById(R.id.dialog_map);
+        mapButt.setOnClickListener(AddEventListener.mapPopUp(tthis, new LatLng(Double.parseDouble(dialogLAT.getText().toString()), Double.parseDouble(dialogLNG.getText().toString())), dialogLAT, dialogLNG));
+
+
         //Common fields
         final EditText jheme = (EditText) findViewById(R.id.NoteUJheme);
         jheme.setText(event.getJhemeCode());
@@ -123,7 +142,6 @@ public class UpdateEventListener extends AppCompatActivity {
         //Buttons
         final Button DeleteButt = (Button) findViewById(R.id.NoteUDelete);
         final Button UpdateButt = (Button) findViewById(R.id.NoteUUpdate);
-        final Activity tthis = this;
 
         DeleteButt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,9 +158,14 @@ public class UpdateEventListener extends AppCompatActivity {
                     json.put("token", Globals.getInstance().token);
                     json.put("type", spinner.getSelectedItemPosition());
                     json.put("note", jheme.getText().toString());
-                    json.put("lat", Double.parseDouble(dialogLAT.getText().toString()));
-                    json.put("lng", Double.parseDouble(dialogLNG.getText().toString()));
-                    json.put("radius", Double.parseDouble(dialogRADIUS.getText().toString()));
+                    try{
+                        json.put("lat", Double.parseDouble(dialogLAT.getText().toString()));
+                        json.put("lng", Double.parseDouble(dialogLNG.getText().toString()));
+                        json.put("radius", Double.parseDouble(dialogRADIUS.getText().toString()));
+                    } catch (Exception e) {
+                        makeToast("lat, lng and/or radius is not a number");
+                        return;
+                    }
                     json.put("filtertype", dialogFTYPE.isChecked() ? 0 : 1);
                     json.put("filter", dialogFILTER.getText().toString());
 
