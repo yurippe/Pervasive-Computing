@@ -119,12 +119,17 @@ public class JhemeRESTPOST extends SchemeProcedure {
             @Override
             public void onResponse(final Call call, final Response response) throws IOException {
 
+                final String body = response.body().string();
+                response.close();
+
                 ((JhemeInterpreter) interpreter).getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        SchemeObject[] supargs = {new SchemeJavaObject(call), new SchemeJavaObject(response)};
-                        success.call(supargs, interpreter, environment);
-                        response.close();
+                        //SchemeObject[] supargs = {new SchemeJavaObject(call), new SchemeJavaObject(response)};
+                        //success.call(supargs, interpreter, environment);
+                        SchemeObject[] args = {new SchemeString(body)};
+                        success.call(args, interpreter, environment);
+                        //response.close();
                     }
                 });
 
