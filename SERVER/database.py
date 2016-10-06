@@ -470,3 +470,49 @@ def delete_note(id, owner):
     else:
         conn.close()
         return False
+
+
+######################################################
+# <3 Friends <3
+def get_friends(userID):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT user2 FROM friends WHERE user1 = '%s';" % (userID))
+    result = c.fetchall()
+
+    friends = [{"userid": id[0]} for id in result]
+
+    conn.commit()
+    return friends
+
+
+def add_friend(fromID, toID):
+    fromUser = get_user_from_id(fromID)
+    toUser = get_user_from_id(toID)
+
+    if fromUser and toUser:
+        conn = connectDB()
+        c = conn.cursor()
+
+        c.execute("SELECT * FROM friends WHERE user1 = '%s' AND user2 = '%s';" % (fromID, toID))
+        exists = c.fetchone()
+
+        if not exists:
+            c.execute("INSERT INTO friends(user1, user2) VALUES ('%s', '%s');" % (fromId, toID))
+            conn.commit()
+
+        conn.close()
+        return True
+    else:
+        return False
+
+def delete_friend(fromID, toID):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("DELETE FROM notes WHERE user1 = '%s' AND user2 = '%s';" % (fromID, toID))
+    conn.commit;
+
+    conn.close()
+    return c.rowcount

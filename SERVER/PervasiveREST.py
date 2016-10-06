@@ -228,6 +228,49 @@ def delete_note():
     else:
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
 
+
+######################################################
+# <3 Friends <3
+@app.route('/getfriends', methods=["POST"])
+def get_friends():
+    json = util.getJson(request)
+
+    user = database.get_user_object_from_token(json["token"])
+
+    if user:
+        return JSON.dumps(util.makeResponseDict(200, data=database.get_friends(user.ID)))
+    else:
+        return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
+
+
+@app.route('/addfriend', methods=["POST"])
+def add_friend():
+    json = util.getJson(request)
+
+    user = database.get_user_object_from_token(json["token"])
+
+    if user:
+        if database.add_friend(user.ID, json["friendid"]):
+            return JSON.dumps(util.makeResponseDict(200, "Friend added!"))
+        else:
+            return JSON.dumps(util.makeResponseDict(400, "FriendID not found"))
+    else:
+        return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
+
+
+@app.route('deletefriend', methods=["POST"])
+def remove_friend():
+    json = util.getJson(request)
+
+    user = database.get_user_object_from_token(json["token"])
+
+    if user:
+        database.delete_friend(user.ID, json["friendid"])
+        return JSON.dumps(util.makeResponseDict(200, "Friend removed"))
+    else:
+        return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
+
+
 ######################################################
 # SETUP
 if __name__ == '__main__':
