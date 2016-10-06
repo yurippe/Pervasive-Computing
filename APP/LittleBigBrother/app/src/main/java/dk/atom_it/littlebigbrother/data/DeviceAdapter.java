@@ -28,13 +28,13 @@ public class DeviceAdapter extends ArrayAdapter<DeviceModel> {
         DeviceModel device = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.b_list_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.wifibt_list_item, parent, false);
         }
 
         TextView mac = (TextView) convertView.findViewById(R.id.device_mac);
         TextView name = (TextView) convertView.findViewById(R.id.device_name);
 
-        Button claimbutton = (Button) convertView.findViewById(R.id.device_claimbutton);
+        Button claimbutton = (Button) convertView.findViewById(R.id.device_select);
 
         claimbutton.setOnClickListener(new View.OnClickListener() {
             @Override

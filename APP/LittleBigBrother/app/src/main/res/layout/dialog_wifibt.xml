@@ -48,7 +48,15 @@
                 android:id="@+id/dialog_filter"
                 android:layout_weight="1"
                 android:inputType="text" />
+
         </LinearLayout>
+
+        <Button
+            android:text="List of devices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/dialog_macList"
+            style="@style/Widget.AppCompat.Button.Colored" />
 
     </LinearLayout>
 

@@ -205,6 +205,9 @@ public class AddEventListener extends AppCompatActivity {
                         }
                     });
 
+                    final Button list_button = (Button) inflated.findViewById(R.id.dialog_macList);
+                    list_button.setOnClickListener(devicesPopUp(tthis, txt_filter));
+
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int i) {
@@ -354,6 +357,28 @@ public class AddEventListener extends AppCompatActivity {
                         mapBuilder.show();
                     }
                 });
+            }
+        };
+    }
+
+    public static View.OnClickListener devicesPopUp(final Activity tthis, final TextView dialogFILTER){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder listBuilder = new AlertDialog.Builder(tthis);
+
+                //TODO: CREATE LIST
+
+                //TODO: Wifi / Bluetooth?
+
+                listBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                listBuilder.show();
             }
         };
     }
