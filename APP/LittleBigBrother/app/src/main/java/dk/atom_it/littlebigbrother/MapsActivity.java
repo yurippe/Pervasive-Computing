@@ -130,6 +130,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         myMapMarker.setAlpha((float) 0.9);
         myMapMarker.setDraggable(false);
 
+        mMap.setOnInfoWindowLongClickListener(this);
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
         //if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {/*Find better way to confirm permissions ?*/ return;}
 
@@ -244,7 +246,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     });
                 } else {
                     //Add to friends
-                    Endpoint endpoint = new Endpoint(tthis, "/deletefriend");
+                    Endpoint endpoint = new Endpoint(tthis, "/addfriend");
                     endpoint.call(data.toString(), new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
