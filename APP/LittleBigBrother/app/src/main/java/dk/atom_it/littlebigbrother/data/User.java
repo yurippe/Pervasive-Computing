@@ -7,6 +7,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Date;
+
 import dk.atom_it.littlebigbrother.MapsActivity;
 
 /**
@@ -23,7 +25,7 @@ public class User {
     private final int userid;
     private String displayname;
     private boolean online;
-    private String lastseen;
+    private Date lastseen;
 
     private boolean isFriend;
 
@@ -39,7 +41,7 @@ public class User {
 
         this.displayname = displayname;
         this.online = online;
-        this.lastseen = lastseen;
+        this.lastseen = new Date(Long.parseLong(lastseen) * 1000);
 
         if(Globals.getInstance().friendid != null){
             this.isFriend = Globals.getInstance().friendid.contains(userid);
@@ -54,18 +56,7 @@ public class User {
                 marker.setDraggable(false);
                 marker.setZIndex(-1);
 
-                marker.setPosition(new LatLng(lat, lng));
-                String title = "" + displayname;
-                if(online){
-                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
-                    marker.setAlpha((float) 0.9);
-                    title = title + ", online";
-                } else {
-                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(200));
-                    marker.setAlpha((float) 0.4);
-                    title = title + ", offline";
-                }
-                marker.setTitle(title);
+                updateMarker();
             }
         });
 
@@ -75,48 +66,56 @@ public class User {
         this.lat = lat;
         this.lng = lng;
 
-        if(!this.displayname.equals(displayname)){
-            this.displayname = displayname;
-        }
+        this.displayname = displayname;
+        this.online = online;
 
-        if(this.online != online) {
-            this.online = online;
+        if(this.online = true){
+            this.lastseen = new Date(Long.parseLong(lastseen) * 1000);
         }
-
-        this.lastseen = lastseen;
 
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                marker.setPosition(new LatLng(lat, lng));
-                String title = "" + displayname;
-
-                if(Globals.getInstance().friendid != null){
-                    isFriend = Globals.getInstance().friendid.contains(userid);
-                } else {
-                    isFriend = false;
-                }
-
-                if(isFriend){
-                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
-                } else {
-                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
-                }
-
-                if(online){
-                    marker.setAlpha((float) 0.9);
-                    title = title + ", online";
-                } else {
-                    marker.setAlpha((float) 0.2);
-                    title = title + ", offline";
-                }
-                marker.setTitle(title);
+                updateMarker();
             }
         });
 
     }
 
+    private void updateMarker(){
+        marker.setPosition(new LatLng(lat, lng));
+        String title = displayname;
+        String snippet;
+
+        if(Globals.getInstance().friendid != null){
+            isFriend = Globals.getInstance().friendid.contains(userid);
+        } else {
+            isFriend = false;
+        }
+
+        if(isFriend){
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
+        } else {
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
+        }
+
+        if(online){
+            marker.setAlpha((float) 0.9);
+            snippet = "online";
+        } else {
+            marker.setAlpha((float) 0.2);
+            snippet = "last seen: " + lastseen.toString();
+        }
+        marker.setTitle(title);
+        marker.setSnippet(snippet);
+    }
+
     public Marker getMarker(){
         return marker;
     }
+
+    public int getUserid() { return userid; }
+
+    public void setIsFriend(boolean isFriend) { this.isFriend = isFriend; }
+    public boolean getIsFriend() { return isFriend; }
 }

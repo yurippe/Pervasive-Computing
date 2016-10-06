@@ -1,7 +1,9 @@
 package dk.atom_it.littlebigbrother.data;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import dk.atom_it.littlebigbrother.notifications.AbstractEvent;
@@ -15,6 +17,9 @@ public class Globals {
     public String token = null;
 
     public LatLng userPosition = null;
+
+    public HashMap<Integer, User> usersPosition = null;
+    public HashMap<Marker, User> usersMarkers = null;
 
     public AbstractEvent tempEvent = null;
 

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -49,7 +50,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, BluetoothListener, WiFiListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, BluetoothListener, WiFiListener, GoogleMap.OnInfoWindowLongClickListener {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -211,11 +212,80 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.startActivity(intent);
     }
 
+    @Override
+    public void onInfoWindowLongClick(Marker marker) {
+        Toast.makeText(tthis, "infowindowlongclick", Toast.LENGTH_SHORT).show();
+        if(marker == myMapMarker){
+            //TODO: Profile activity
+            return;
+        }
+
+        final User user = Globals.getInstance().usersMarkers.get(marker);
+        if(user != null){
+            try{
+                JSONObject data = new JSONObject();
+                data.put("token", Globals.getInstance().token);
+                data.put("friendid", user.getUserid());
+
+                if(user.getIsFriend()){
+                    Endpoint endpoint = new Endpoint(tthis, "/deletefriend");
+                    endpoint.call(data.toString(), new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Toast.makeText(tthis, "Removal from favorites failed", Toast.LENGTH_SHORT).show();
+                            user.setIsFriend(true);
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            Toast.makeText(tthis, "User removed from favorites", Toast.LENGTH_SHORT).show();
+                            user.setIsFriend(false);
+                        }
+                    });
+                } else {
+                    //Add to friends
+                    Endpoint endpoint = new Endpoint(tthis, "/deletefriend");
+                    endpoint.call(data.toString(), new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
+                            user.setIsFriend(false);
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            try{
+                                JSONObject jsonresp = new JSONObject(response.body().string());
+                                if(jsonresp.getInt("status") != 200){
+                                    Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
+                                    user.setIsFriend(false);
+
+                                } else {
+                                    Toast.makeText(tthis, "Added to favorites", Toast.LENGTH_SHORT).show();
+                                    user.setIsFriend(true);
+                                }
+                            } catch (JSONException e) {
+                                //meh...
+                            }
+
+                        }
+                    });
+                }
+            } catch (JSONException e){
+                //Well, you must like or hate him for a bit longer...
+            }
+        } else {
+            return;
+        }
+    }
+
     private void startUserUpdates(){
+        Globals.getInstance().usersPosition = new HashMap<>();
+        Globals.getInstance().usersMarkers = new HashMap<>();
+
         userupdates = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    HashMap<Integer, User> users = new HashMap<>();
                     Endpoint endpoint = new Endpoint(tthis, "/userspos");
 
                     HashMap<String, String> credentials = new HashMap<>();
@@ -230,14 +300,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 for (int i = 0; i < userarray.length(); i++) {
                                     JSONObject singularUser = userarray.getJSONObject(i);
                                     int uid = singularUser.getInt("userid");
-                                    if (users.containsKey(uid)) {
-                                        users.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                    if (Globals.getInstance().usersPosition.containsKey(uid)) {
+                                        Globals.getInstance().usersPosition.get(uid).update(singularUser.getDouble("lat"), singularUser.getDouble("lng"),
                                                 singularUser.getString("displayname"), singularUser.getInt("online") != 0,
                                                 singularUser.getString("lastseen"));
                                     } else {
-                                        users.put(uid, new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                        User newUser = new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
                                                 singularUser.getString("displayname"), singularUser.getInt("online") != 0,
-                                                singularUser.getString("lastseen")));
+                                                singularUser.getString("lastseen"));
+                                        Globals.getInstance().usersPosition.put(uid, newUser);
+                                        Globals.getInstance().usersMarkers.put(newUser.getMarker(), newUser);
                                     }
                                 }
                             } else {

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:text="Display Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/marker_displayname"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:textStyle="normal|bold"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <TextView
+        android:text="Last online: 08-12-1994"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/marker_status"
+        android:textAlignment="center"
+        android:textStyle="normal|bold" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <TextView
+        android:text="(Hold to favorite)"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/marker_favorite"
+        android:textAlignment="center" />
+
+</LinearLayout>
