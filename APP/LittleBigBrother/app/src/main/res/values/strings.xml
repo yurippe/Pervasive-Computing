@@ -1,10 +1,12 @@
 <resources>
-    <string name="app_name">Little Big Brother</string>
+    <string name="app_name">Notamicus</string>
     <string name="base_url">http://yurippe.net:7777</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_login">Little Big Brotha</string>
-    <string name="title_activity_signup">Sign Up</string>
-    <string name="title_activity_add_event_listener">Add Event</string>
+    <string name="title_activity_maps">Notamicus: Map</string>
+    <string name="title_activity_login">Notamicus: Login</string>
+    <string name="title_activity_signup">Notamicus: Sign Up</string>
+    <string name="title_activity_add_event_listener">Notamicus: Add Event</string>
+    <string name="title_activity_event_list">Notamicus: All Events</string>
+    <string name="title_activity_update_event_listener">Notamicus: Update Event</string>
 
     <string-array name="event_types">
         <item>On Bluetooth Enter</item>
@@ -14,5 +16,4 @@
         <item>On Position Enter</item>
         <item>On Position Exit</item>
     </string-array>
-    <string name="title_activity_event_list">Event List</string>
 </resources>
