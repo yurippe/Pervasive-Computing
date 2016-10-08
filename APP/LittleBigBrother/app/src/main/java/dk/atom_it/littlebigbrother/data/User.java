@@ -93,12 +93,6 @@ public class User {
             isFriend = false;
         }
 
-        if(isFriend){
-            marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
-        } else {
-            marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
-        }
-
         if(online){
             marker.setAlpha((float) 0.9);
             snippet = "online";
@@ -108,6 +102,13 @@ public class User {
         }
         marker.setTitle(title);
         marker.setSnippet(snippet);
+
+        if(isFriend){
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
+            marker.showInfoWindow();
+        } else {
+            marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
+        }
     }
 
     public Marker getMarker(){

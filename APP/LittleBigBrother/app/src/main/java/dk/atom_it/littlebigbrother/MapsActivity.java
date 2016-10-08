@@ -220,64 +220,62 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(marker == myMapMarker){
             //TODO: Profile activity
             return;
-        }
+        } else {
+            final User user = Globals.getInstance().usersMarkers.get(marker);
+            if(user != null){
+                try{
+                    JSONObject data = new JSONObject();
+                    data.put("token", Globals.getInstance().token);
+                    data.put("friendid", user.getUserid());
 
-        final User user = Globals.getInstance().usersMarkers.get(marker);
-        if(user != null){
-            try{
-                JSONObject data = new JSONObject();
-                data.put("token", Globals.getInstance().token);
-                data.put("friendid", user.getUserid());
-
-                if(user.getIsFriend()){
-                    Endpoint endpoint = new Endpoint(tthis, "/deletefriend");
-                    endpoint.call(data.toString(), new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Toast.makeText(tthis, "Removal from favorites failed", Toast.LENGTH_SHORT).show();
-                            user.setIsFriend(true);
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            Toast.makeText(tthis, "User removed from favorites", Toast.LENGTH_SHORT).show();
-                            user.setIsFriend(false);
-                        }
-                    });
-                } else {
-                    //Add to friends
-                    Endpoint endpoint = new Endpoint(tthis, "/addfriend");
-                    endpoint.call(data.toString(), new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
-                            user.setIsFriend(false);
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            try{
-                                JSONObject jsonresp = new JSONObject(response.body().string());
-                                if(jsonresp.getInt("status") != 200){
-                                    Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
-                                    user.setIsFriend(false);
-
-                                } else {
-                                    Toast.makeText(tthis, "Added to favorites", Toast.LENGTH_SHORT).show();
-                                    user.setIsFriend(true);
-                                }
-                            } catch (JSONException e) {
-                                //meh...
+                    if(user.getIsFriend()){
+                        Endpoint endpoint = new Endpoint(tthis, "/deletefriend");
+                        endpoint.call(data.toString(), new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                Toast.makeText(tthis, "Removal from favorites failed", Toast.LENGTH_SHORT).show();
+                                user.setIsFriend(true);
                             }
 
-                        }
-                    });
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                Toast.makeText(tthis, "User removed from favorites", Toast.LENGTH_SHORT).show();
+                                user.setIsFriend(false);
+                            }
+                        });
+                    } else {
+                        //Add to friends
+                        Endpoint endpoint = new Endpoint(tthis, "/addfriend");
+                        endpoint.call(data.toString(), new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
+                                user.setIsFriend(false);
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                try{
+                                    JSONObject jsonresp = new JSONObject(response.body().string());
+                                    if(jsonresp.getInt("status") != 200){
+                                        Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
+                                        user.setIsFriend(false);
+
+                                    } else {
+                                        Toast.makeText(tthis, "Added to favorites", Toast.LENGTH_SHORT).show();
+                                        user.setIsFriend(true);
+                                    }
+                                } catch (JSONException e) {
+                                    //meh...
+                                }
+
+                            }
+                        });
+                    }
+                } catch (JSONException e){
+                    //Well, you must like or hate him for a bit longer...
                 }
-            } catch (JSONException e){
-                //Well, you must like or hate him for a bit longer...
             }
-        } else {
-            return;
         }
     }
 
