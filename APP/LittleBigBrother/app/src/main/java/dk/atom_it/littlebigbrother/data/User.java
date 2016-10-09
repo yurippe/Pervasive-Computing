@@ -59,7 +59,6 @@ public class User {
                 updateMarker();
             }
         });
-
     }
 
     public void update(final double lat, final double lng, final String displayname, final boolean online, final String lastseen){
@@ -79,13 +78,12 @@ public class User {
                 updateMarker();
             }
         });
-
     }
 
     private void updateMarker(){
         marker.setPosition(new LatLng(lat, lng));
-        String title = displayname;
-        String snippet;
+        final String title = displayname;
+        final String snippet;
 
         if(Globals.getInstance().friendid != null){
             isFriend = Globals.getInstance().friendid.contains(userid);
@@ -100,15 +98,22 @@ public class User {
             marker.setAlpha((float) 0.2);
             snippet = "last seen: " + lastseen.toString();
         }
-        marker.setTitle(title);
-        marker.setSnippet(snippet);
 
-        if(isFriend){
-            marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
-            marker.showInfoWindow();
-        } else {
-            marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
-        }
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                marker.setTitle(title);
+                marker.setSnippet(snippet);
+
+                if(isFriend){
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
+                    marker.showInfoWindow();
+                } else {
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
+                }
+            }
+        });
+
     }
 
     public Marker getMarker(){
@@ -117,6 +122,21 @@ public class User {
 
     public int getUserid() { return userid; }
 
-    public void setIsFriend(boolean isFriend) { this.isFriend = isFriend; }
+    public void setIsFriend(final boolean isFriend) {
+        this.isFriend = isFriend;
+
+        //Make the color change immediate... hopefully
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(isFriend){
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(120));
+                    marker.showInfoWindow();
+                } else {
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(190));
+                }
+            }
+        });
+    }
     public boolean getIsFriend() { return isFriend; }
 }

@@ -154,7 +154,7 @@ def get_user_from_id(userid):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM users WHERE userid = '%s" % (userid))
+    c.execute("SELECT * FROM users WHERE userid = '%s'" % (userid))
     user = c.fetchone()
 
     conn.close()
@@ -499,7 +499,7 @@ def add_friend(fromID, toID):
         exists = c.fetchone()
 
         if not exists:
-            c.execute("INSERT INTO friends(user1, user2) VALUES ('%s', '%s');" % (fromId, toID))
+            c.execute("INSERT INTO friends(user1, user2) VALUES ('%s', '%s');" % (fromID, toID))
             conn.commit()
 
         conn.close()
@@ -507,12 +507,25 @@ def add_friend(fromID, toID):
     else:
         return False
 
+
 def delete_friend(fromID, toID):
-    conn = connectDB()
-    c = conn.cursor()
+    fromUser = get_user_from_id(fromID)
+    toUser = get_user_from_id(toID)
 
-    c.execute("DELETE FROM notes WHERE user1 = '%s' AND user2 = '%s';" % (fromID, toID))
-    conn.commit;
+    if fromUser and toUser:
+        conn = connectDB()
+        c = conn.cursor()
 
-    conn.close()
-    return c.rowcount
+        c.execute("SELECT * FROM friends WHERE user1 = '%s' AND user2 = '%s';" % (fromID, toID))
+        deleted = c.fetchall()
+
+        c.execute("DELETE FROM friends WHERE user1 = '%s' AND user2 = '%s';" % (fromID, toID))
+        conn.commit
+
+        conn.close()
+        if deleted:
+            return "Favorite removed"
+        else:
+            return "Couldn't favorite in database"
+    else:
+        return "Users not recognized"

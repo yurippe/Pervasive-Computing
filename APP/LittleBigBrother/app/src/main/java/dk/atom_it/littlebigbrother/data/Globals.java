@@ -20,7 +20,7 @@ public class Globals {
 
     public LatLng userPosition = null;
 
-    public HashMap<Integer, User> usersPosition = null;
+    public HashMap<Integer, User> usersPosition= null;
     public HashMap<Marker, User> usersMarkers = null;
 
     public AbstractEvent tempEvent = null;

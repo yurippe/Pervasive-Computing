@@ -260,9 +260,9 @@ def add_friend():
     user = database.get_user_object_from_token(json["token"])
 
     if user:
-        if user.ID == json["friendid"]:
-            return JSON.dumps(300, "Cannot friend yourself")
-        elif database.add_friend(user.ID, json["friendid"]):
+        #if user.ID == json["friendid"]:
+            #return JSON.dumps(300, "Cannot friend yourself")
+        if database.add_friend(user.ID, json["friendid"]):
             return JSON.dumps(util.makeResponseDict(200, "Friend added!"))
         else:
             return JSON.dumps(util.makeResponseDict(400, "ID of other user not existing"))
@@ -277,8 +277,8 @@ def remove_friend():
     user = database.get_user_object_from_token(json["token"])
 
     if user:
-        database.delete_friend(user.ID, json["friendid"])
-        return JSON.dumps(util.makeResponseDict(200, "Friend removed"))
+        q = database.delete_friend(user.ID, json["friendid"])
+        return JSON.dumps(util.makeResponseDict(200, q))
     else:
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
 

@@ -221,33 +221,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             //Why like this? Because Globals.getInstance().usersMarkers.get(marker) doesn't work...
 
-            //Why it is a good idea, that the marker as an argument is not actually the same as the
-            //marker you clicked, I cannot tell you. But, I just want this to damn work
-            for (Marker m : Globals.getInstance().usersMarkers.keySet()) {
-                if(m == null){
-                    Toast.makeText(tthis, "Marker in hashmap are null", Toast.LENGTH_SHORT).show();
-                }
+            //Why it is a good idea, that markers are not updated but just recreated? And that the
+            //argument is not actually the same as the marker you clicked?
+            //I cannot tell you. But, I can tell you, that is completely ridiculous!
 
-                else if (m.getPosition().equals(marker)) {
-                    final User user = Globals.getInstance().usersMarkers.get(m);
+
+            for (User user : Globals.getInstance().usersPosition.values()) {
+                Marker m = user.getMarker();
+                System.out.println(user.getUserid() + "");
+                System.out.println(m.getPosition().toString());
+                if (m.getPosition().equals(marker.getPosition())) {
+                    final User founduser = user;
+                    System.out.println(founduser.getUserid() + "");
                     try {
                         JSONObject data = new JSONObject();
                         data.put("token", Globals.getInstance().token);
-                        data.put("friendid", user.getUserid());
+                        data.put("friendid", founduser.getUserid());
 
                         if (user.getIsFriend()) {
+                            //Remove from friends
                             Endpoint endpoint = new Endpoint(tthis, "/deletefriend");
                             endpoint.call(data.toString(), new Callback() {
                                 @Override
                                 public void onFailure(Call call, IOException e) {
-                                    Toast.makeText(tthis, "Removal from favorites failed", Toast.LENGTH_SHORT).show();
-                                    user.setIsFriend(true);
+                                    makeToast("Removal from favorites failed");
+                                    founduser.setIsFriend(true);
                                 }
 
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
-                                    Toast.makeText(tthis, "User removed from favorites", Toast.LENGTH_SHORT).show();
-                                    user.setIsFriend(false);
+                                    try {
+                                        JSONObject jsonresp = new JSONObject(response.body().string());
+                                        if (jsonresp.getInt("status") != 200) {
+                                            makeToast("Removal from favorites failed");
+                                            Globals.getInstance().friendid.add(founduser.getUserid());
+                                            founduser.setIsFriend(true);
+                                        } else {
+                                            makeToast(jsonresp.getString("message"));
+                                            Globals.getInstance().friendid.remove(founduser.getUserid());
+                                            founduser.setIsFriend(false);
+                                        }
+                                    } catch (JSONException e) {
+                                        //meh...
+                                    }
                                 }
                             });
                         } else {
@@ -256,8 +272,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             endpoint.call(data.toString(), new Callback() {
                                 @Override
                                 public void onFailure(Call call, IOException e) {
-                                    Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
-                                    user.setIsFriend(false);
+                                    makeToast("Adding to favorites failed");
+                                    founduser.setIsFriend(false);
                                 }
 
                                 @Override
@@ -265,12 +281,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     try {
                                         JSONObject jsonresp = new JSONObject(response.body().string());
                                         if (jsonresp.getInt("status") != 200) {
-                                            Toast.makeText(tthis, "Adding to favorites failed", Toast.LENGTH_SHORT).show();
-                                            user.setIsFriend(false);
+                                            makeToast("Adding to favorites failed");
+                                            Globals.getInstance().friendid.remove(founduser.getUserid());
+                                            founduser.setIsFriend(false);
 
                                         } else {
-                                            Toast.makeText(tthis, "Added to favorites", Toast.LENGTH_SHORT).show();
-                                            user.setIsFriend(true);
+                                            makeToast("Added to favorites");
+                                            Globals.getInstance().friendid.add(founduser.getUserid());
+                                            founduser.setIsFriend(true);
                                         }
                                     } catch (JSONException e) {
                                         //meh...
@@ -477,5 +495,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onWiFiError() {
 
+    }
+
+    private void makeToast(final String text) {
+        final MapsActivity tthis = this;
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(tthis, text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
