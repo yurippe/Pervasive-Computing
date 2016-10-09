@@ -50,7 +50,6 @@ public class UpdateEventListener extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_event_listener);
-        final UpdateEventListener tthis = this;
 
         //Common values from intent
         event = Globals.getInstance().tempEvent;
@@ -105,7 +104,7 @@ public class UpdateEventListener extends AppCompatActivity {
 
         //Map button
         final Button mapButt = (Button) findViewById(R.id.dialog_map);
-        mapButt.setOnClickListener(AddEventListener.mapPopUp(tthis, new LatLng(Double.parseDouble(dialogLAT.getText().toString()), Double.parseDouble(dialogLNG.getText().toString())), dialogLAT, dialogLNG));
+        mapButt.setOnClickListener(AddEventListener.mapPopUp(this, new LatLng(Double.parseDouble(dialogLAT.getText().toString()), Double.parseDouble(dialogLNG.getText().toString())), dialogLAT, dialogLNG));
 
 
         //Common fields
@@ -169,7 +168,7 @@ public class UpdateEventListener extends AppCompatActivity {
                     json.put("filtertype", dialogFTYPE.isChecked() ? 0 : 1);
                     json.put("filter", dialogFILTER.getText().toString());
 
-                    AddEventListener.processJSON(json, tthis);
+                    AddEventListener.processJSON(json);
                     delete();
                 } catch (JSONException e) {
                     //meh
@@ -184,7 +183,7 @@ public class UpdateEventListener extends AppCompatActivity {
             data.put("token", Globals.getInstance().token);
             data.put("noteid", event.getNoteId());
 
-            Endpoint endpoint = new Endpoint(this, "/deletenote");
+            Endpoint endpoint = new Endpoint("/deletenote");
             endpoint.call(data.toString(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -217,11 +216,10 @@ public class UpdateEventListener extends AppCompatActivity {
     }
 
     private void makeToast(final String text){
-        final UpdateEventListener tthis = this;
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(tthis, text, Toast.LENGTH_LONG).show();
+                Toast.makeText(NotamicusApp.getInstance(), text, Toast.LENGTH_LONG).show();
             }
         });
     }

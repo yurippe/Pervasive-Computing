@@ -4,6 +4,7 @@ import android.content.Context;
 
 import java.io.IOException;
 
+import dk.atom_it.littlebigbrother.NotamicusApp;
 import dk.atom_it.littlebigbrother.R;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -18,12 +19,10 @@ public class Endpoint {
 
     private String baseURL;
     private String endpoint;
-    private Context context;
 
-    public Endpoint(Context context, String endpoint){
-        baseURL = context.getString(R.string.base_url);
+    public Endpoint(String endpoint){
+        baseURL = NotamicusApp.getInstance().getString(R.string.base_url);
         this.endpoint = endpoint;
-        this.context = context;
     }
 
     public Call callAndThrow(String data, Callback callback) throws IOException{

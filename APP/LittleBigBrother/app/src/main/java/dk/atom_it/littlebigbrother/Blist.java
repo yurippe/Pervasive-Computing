@@ -37,14 +37,14 @@ public class Blist extends AppCompatActivity implements BluetoothListener {
         adapter = new DeviceAdapter(this, devices);
         listBluetooth.setAdapter(adapter);
 
-        BluetoothManager.getInstance(this).scanBluetooth(this);
+        BluetoothManager.getInstance().scanBluetooth(this);
 
         Button refreshButton = (Button) findViewById(R.id.bluetooth_refresh);
         final Blist tthis = this;
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BluetoothManager.getInstance(tthis).scanBluetooth(tthis);
+                BluetoothManager.getInstance().scanBluetooth(tthis);
             }
         });
     }

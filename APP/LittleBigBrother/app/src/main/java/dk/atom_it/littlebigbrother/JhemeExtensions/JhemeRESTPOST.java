@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import dk.atom_it.littlebigbrother.NotamicusApp;
 import dk.atomit.Jheme.Environment.Environment;
 import dk.atomit.Jheme.Interpreter.EvaluationResult;
 import dk.atomit.Jheme.Interpreter.Interpreter;
@@ -105,7 +106,7 @@ public class JhemeRESTPOST extends SchemeProcedure {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(final Call call, final IOException e) {
-                ((JhemeInterpreter) interpreter).getActivity().runOnUiThread(new Runnable() {
+                NotamicusApp.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(failure != null){
@@ -122,7 +123,7 @@ public class JhemeRESTPOST extends SchemeProcedure {
                 final String body = response.body().string();
                 response.close();
 
-                ((JhemeInterpreter) interpreter).getActivity().runOnUiThread(new Runnable() {
+                NotamicusApp.getInstance().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //SchemeObject[] supargs = {new SchemeJavaObject(call), new SchemeJavaObject(response)};

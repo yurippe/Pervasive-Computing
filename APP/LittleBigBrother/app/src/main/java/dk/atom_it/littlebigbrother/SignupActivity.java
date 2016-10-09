@@ -48,7 +48,7 @@ public class SignupActivity extends AppCompatActivity {
                 credentials.put("password", passwordwidget.getText().toString());
                 JSONObject data = new JSONObject(credentials);
 
-                Endpoint login = new Endpoint(tthis, "/signup");
+                Endpoint login = new Endpoint("/signup");
                 login.call(data.toString(), new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {

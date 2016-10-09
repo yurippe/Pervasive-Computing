@@ -1,6 +1,5 @@
 package dk.atom_it.littlebigbrother.managers;
 
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +11,8 @@ import android.os.Handler;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import dk.atom_it.littlebigbrother.NotamicusApp;
 
 /**
  * Created by Kristian on 10/3/2016.
@@ -28,26 +29,26 @@ public class WiFiManager {
     private boolean scanning = false;
     private Set<WiFiListener> listeners;
 
-    public static WiFiManager getInstance(Context context){
+    public static WiFiManager getInstance(){
         if(wiFiManager == null){
-            wiFiManager = new WiFiManager(context);
+            wiFiManager = new WiFiManager();
         }
         if(!wiFiManager.checkIntegrity()){
-            wiFiManager.reset(context);
+            wiFiManager.reset();
         }
         return wiFiManager;
     }
 
-    protected WiFiManager(Context context){
-        reset(context);
+    protected WiFiManager(){
+        reset();
     }
 
     private boolean checkIntegrity(){
         return WiFiManager != null;
     }
 
-    private void reset(Context context){
-        WiFiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+    private void reset(){
+        WiFiManager = (WifiManager) NotamicusApp.getInstance().getSystemService(Context.WIFI_SERVICE);
         if(WiFiManager != null) {
 
             WIFIReceiver = new BroadcastReceiver() {
@@ -62,7 +63,7 @@ public class WiFiManager {
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(WiFiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-            context.registerReceiver(WIFIReceiver, filter);
+            NotamicusApp.getInstance().registerReceiver(WIFIReceiver, filter);
 
 
         } else {

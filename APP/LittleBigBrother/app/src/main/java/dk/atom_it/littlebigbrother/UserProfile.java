@@ -34,7 +34,6 @@ public class UserProfile extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final Activity tthis = this;
 
         //Set text
         TextView username = (TextView) findViewById(R.id.profile_username);
@@ -60,7 +59,7 @@ public class UserProfile extends AppCompatActivity {
                     data.put("token", Globals.getInstance().token);
                     data.put("displayname", displayname.getText());
 
-                    Endpoint endpoint = new Endpoint(tthis, "/updatedisplayname");
+                    Endpoint endpoint = new Endpoint("/updatedisplayname");
                     endpoint.call(data.toString(), new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -90,11 +89,10 @@ public class UserProfile extends AppCompatActivity {
     }
 
     private void makeToast(final String text) {
-        final UserProfile tthis = this;
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(tthis, text, Toast.LENGTH_LONG).show();
+                Toast.makeText(NotamicusApp.getInstance(), text, Toast.LENGTH_LONG).show();
            }
         });
     }

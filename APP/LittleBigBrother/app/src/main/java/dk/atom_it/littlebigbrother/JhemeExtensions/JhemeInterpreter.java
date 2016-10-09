@@ -11,12 +11,10 @@ import java.util.Map;
 
 public class JhemeInterpreter extends dk.atomit.Jheme.Interpreter.Interpreter {
 
-    private Activity activity;
-
     private Map<String, Object> extras = new HashMap<>();
 
-    public JhemeInterpreter(Activity activity){
-        this.activity = activity;
+    public JhemeInterpreter(){
+
         environment.put("toast", new JhemeToast());
         environment.put("notify", new JhemeNotification());
         environment.put("extra", new JhemeGetExtra());
@@ -24,10 +22,6 @@ public class JhemeInterpreter extends dk.atomit.Jheme.Interpreter.Interpreter {
         environment.put("readresponse", new JhemeReadResponse());
         environment.put("gettoken", new JhemeGetToken());
         environment.put("test", new JhemeTest());
-    }
-
-    public Activity getActivity(){
-        return activity;
     }
 
     public void setExtra(String key, Object value){

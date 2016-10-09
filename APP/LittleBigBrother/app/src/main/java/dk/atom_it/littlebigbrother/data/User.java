@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.Date;
 
 import dk.atom_it.littlebigbrother.MapsActivity;
+import dk.atom_it.littlebigbrother.NotamicusApp;
 
 /**
  * An object representing one singular user
@@ -18,7 +19,6 @@ public class User {
     private double lat;
     private double lng;
 
-    private final MapsActivity mActivity;
     private final GoogleMap mMap;
     private Marker marker;
 
@@ -29,9 +29,8 @@ public class User {
 
     private boolean isFriend;
 
-    public User(final MapsActivity mActivity, final GoogleMap inmMap, final int userid, final double lat,
+    public User(final GoogleMap inmMap, final int userid, final double lat,
                 final double lng, final String displayname, final boolean online, final String lastseen){
-        this.mActivity = mActivity;
         this.mMap = inmMap;
 
         this.userid = userid;
@@ -49,7 +48,7 @@ public class User {
             isFriend = false;
         }
 
-        mActivity.runOnUiThread(new Runnable() {
+        NotamicusApp.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 marker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(displayname));
@@ -72,7 +71,7 @@ public class User {
             this.lastseen = new Date(Long.parseLong(lastseen) * 1000);
         }
 
-        mActivity.runOnUiThread(new Runnable() {
+        NotamicusApp.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 updateMarker();
@@ -99,7 +98,7 @@ public class User {
             snippet = "last seen: " + lastseen.toString();
         }
 
-        mActivity.runOnUiThread(new Runnable() {
+        NotamicusApp.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 marker.setTitle(title);
@@ -126,7 +125,7 @@ public class User {
         this.isFriend = isFriend;
 
         //Make the color change immediate... hopefully
-        mActivity.runOnUiThread(new Runnable() {
+        NotamicusApp.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if(isFriend){

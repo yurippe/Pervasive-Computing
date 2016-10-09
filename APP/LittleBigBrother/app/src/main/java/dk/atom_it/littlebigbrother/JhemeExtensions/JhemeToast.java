@@ -2,6 +2,7 @@ package dk.atom_it.littlebigbrother.JhemeExtensions;
 
 import android.widget.Toast;
 
+import dk.atom_it.littlebigbrother.NotamicusApp;
 import dk.atomit.Jheme.Environment.Environment;
 import dk.atomit.Jheme.Interpreter.EvaluationResult;
 import dk.atomit.Jheme.Interpreter.Interpreter;
@@ -28,7 +29,7 @@ public class JhemeToast extends SchemeProcedure {
         }
 
         JhemeInterpreter interp = (JhemeInterpreter) i;
-        Toast.makeText(interp.getActivity(), sb.toString(), Toast.LENGTH_LONG).show();
+        Toast.makeText(NotamicusApp.getInstance(), sb.toString(), Toast.LENGTH_LONG).show();
         return new EvaluationResult(e);
     }
 }

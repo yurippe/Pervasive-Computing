@@ -1,19 +1,20 @@
 package dk.atom_it.littlebigbrother.managers;
 
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 import android.os.Handler;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import dk.atom_it.littlebigbrother.NotamicusApp;
 
 /**
  * Created by Kristian on 10/3/2016.
@@ -31,54 +32,54 @@ public class BluetoothManager {
     private Set<BluetoothListener> listeners;
     private List<BluetoothDevice> results = new ArrayList<>();
 
-    public static BluetoothManager getInstance(Context context){
+    public static BluetoothManager getInstance(){
         if(bluetoothManager == null){
-            bluetoothManager = new BluetoothManager(context);
+            bluetoothManager = new BluetoothManager();
         }
         if(!bluetoothManager.checkIntegrity()){
-            bluetoothManager.reset(context);
+            bluetoothManager.reset();
         }
         return bluetoothManager;
     }
 
-    protected BluetoothManager(Context context){
-        reset(context);
+    protected BluetoothManager(){
+        reset();
     }
 
     private boolean checkIntegrity(){
         return BTAdapter != null;
     }
 
-    private void reset(Context context){
+    private void reset(){
         BTAdapter = BluetoothAdapter.getDefaultAdapter();
         if(BTAdapter != null) {
 
             BTReceiver = new BroadcastReceiver(){
                 public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
+                    String action = intent.getAction();
 
-                if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                    if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
 
-                    onBluetoothDiscoveryStarted();
+                        onBluetoothDiscoveryStarted();
 
-                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                    } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 
-                    onBluetoothDiscoveryCompleted();
+                        onBluetoothDiscoveryCompleted();
 
-                } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    //bluetooth device found
-                    final BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    onBluetoothDeviceDiscovery(device);
+                    } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                        //bluetooth device found
+                        final BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                        onBluetoothDeviceDiscovery(device);
 
+                    }
                 }
-            }
-        };
+            };
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(BluetoothDevice.ACTION_FOUND);
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-            context.registerReceiver(BTReceiver, filter);
+            NotamicusApp.getInstance().registerReceiver(BTReceiver, filter);
 
 
         } else {

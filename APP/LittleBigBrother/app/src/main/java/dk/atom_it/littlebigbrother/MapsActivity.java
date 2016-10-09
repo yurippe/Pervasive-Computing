@@ -1,6 +1,7 @@
 package dk.atom_it.littlebigbrother;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -60,7 +61,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //private String token = "";
     private Marker myMapMarker;
 
-    private final MapsActivity tthis = this;
     private Thread userupdates;
 
     private NetworkingSucks networkingSucks;
@@ -82,16 +82,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                Intent toList = new Intent(tthis, AddEventListener.class);
+                Intent toList = new Intent(getContext(), AddEventListener.class);
                 String username = getIntent().getStringExtra("username");
                 toList.putExtra("username", username);
-                tthis.startActivity(toList);
+                startActivity(toList);
 
             }
         });
 
-        BluetoothManager.getInstance(this).scanBluetooth(this);
-        WiFiManager.getInstance(this).scanWifi(this);
+        BluetoothManager.getInstance().scanBluetooth(this);
+        WiFiManager.getInstance().scanWifi(this);
 
         networkingSucks = new NetworkingSucks(this);
     }
@@ -185,11 +185,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             data.put("token", Globals.getInstance().token);
             JSONObject json = new JSONObject(data);
 
-            Endpoint logout = new Endpoint(this, "/logout");
+            Endpoint logout = new Endpoint("/logout");
             logout.call(json.toString(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Toast.makeText(tthis, "Logout failed", Toast.LENGTH_SHORT);
+                    makeToast("Logout failed", Toast.LENGTH_SHORT);
                 }
 
                 @Override
@@ -199,10 +199,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         JSONObject jsonresp = new JSONObject(response.body().string());
                         Globals.getInstance().token = null;
                         if (jsonresp.getInt("status") != 200) {
-                            Toast.makeText(tthis, "Logout failed: " + jsonresp.getString("message"), Toast.LENGTH_SHORT).show();
+                            makeToast("Logout failed: " + jsonresp.getString("message"), Toast.LENGTH_SHORT);
                         }
                     } catch (JSONException e) {
-                        Toast.makeText(tthis, "Invalid server response", Toast.LENGTH_SHORT).show();
+                        makeToast("Invalid server response", Toast.LENGTH_SHORT);
                     }
                     response.close(); //Very important
                 }
@@ -216,11 +216,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.startActivity(intent);
     }
 
+    public Context getContext(){
+        return this;
+    }
+
     @Override
     public void onInfoWindowLongClick(Marker marker) {
         if(marker.getPosition().equals(myMapMarker.getPosition())){
-            Intent toList = new Intent(tthis, UserProfile.class);
-            tthis.startActivity(toList);
+            Intent toList = new Intent(getContext(), UserProfile.class);
+            startActivity(toList);
         } else {
             //Why like this? Because Globals.getInstance().usersMarkers.get(marker) doesn't work...
 
@@ -243,7 +247,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         if (user.getIsFriend()) {
                             //Remove from friends
-                            Endpoint endpoint = new Endpoint(tthis, "/deletefriend");
+                            Endpoint endpoint = new Endpoint("/deletefriend");
                             endpoint.call(data.toString(), new Callback() {
                                 @Override
                                 public void onFailure(Call call, IOException e) {
@@ -271,7 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             });
                         } else {
                             //Add to friends
-                            Endpoint endpoint = new Endpoint(tthis, "/addfriend");
+                            Endpoint endpoint = new Endpoint("/addfriend");
                             endpoint.call(data.toString(), new Callback() {
                                 @Override
                                 public void onFailure(Call call, IOException e) {
@@ -316,7 +320,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         userupdates = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Endpoint endpoint = new Endpoint(tthis, "/userspos");
+                    Endpoint endpoint = new Endpoint("/userspos");
 
                     HashMap<String, String> credentials = new HashMap<>();
                     credentials.put("token", Globals.getInstance().token);
@@ -335,7 +339,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 singularUser.getString("displayname"), singularUser.getInt("online") != 0,
                                                 singularUser.getString("lastseen"));
                                     } else {
-                                        User newUser = new User(tthis, mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
+                                        User newUser = new User(mMap, uid, singularUser.getDouble("lat"), singularUser.getDouble("lng"),
                                                 singularUser.getString("displayname"), singularUser.getInt("online") != 0,
                                                 singularUser.getString("lastseen"));
                                         Globals.getInstance().usersPosition.put(uid, newUser);
@@ -367,7 +371,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void getCloudeCode(){
         Globals.getInstance().cloudCode = new ArrayList<>();
-        Endpoint endpoint = new Endpoint(tthis, "/code");
+        Endpoint endpoint = new Endpoint("/code");
         endpoint.call(new JSONObject().toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -405,7 +409,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             JSONObject data = new JSONObject();
             data.put("token", Globals.getInstance().token);
 
-            Endpoint endpoint = new Endpoint(tthis, "/getnotes");
+            Endpoint endpoint = new Endpoint("/getnotes");
 
             endpoint.call(data.toString(), new Callback() {
                     @Override
@@ -421,7 +425,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             for(int i = 0; i < notearray.length(); i++){
                                 JSONObject singleNote = notearray.getJSONObject(i);
-                                AbstractEvent event = EventManager.getInstance().fromJSON(singleNote, tthis);
+                                AbstractEvent event = EventManager.getInstance().fromJSON(singleNote);
                                 EventManager.getInstance().queueListener(event);
                             }
                         } catch (JSONException e) {
@@ -439,7 +443,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             JSONObject data = new JSONObject();
             data.put("token", Globals.getInstance().token);
 
-            Endpoint endpoint = new Endpoint(tthis, "/getfriends");
+            Endpoint endpoint = new Endpoint("/getfriends");
             endpoint.call(data.toString(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -502,7 +506,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onBluetoothScanCompleted() {
         //Toast.makeText(this, "BT scan ended, restart in 3 secs", Toast.LENGTH_SHORT).show();
-        BluetoothManager.getInstance(this).scanBluetooth(this, 3000);
+        BluetoothManager.getInstance().scanBluetooth(this, 3000);
     }
 
     @Override
@@ -522,7 +526,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onWiFiScanCompleted() {
-        WiFiManager.getInstance(this).scanWifi(this, 7000);
+        WiFiManager.getInstance().scanWifi(this, 7000);
     }
 
     @Override
@@ -530,13 +534,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void makeToast(final String text) {
-        final MapsActivity tthis = this;
+    private void makeToast(final String text, final int length) {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(tthis, text, Toast.LENGTH_LONG).show();
+                Toast.makeText(NotamicusApp.getInstance(), text, length).show();
             }
         });
+    }
+
+    private void makeToast(final String text) {
+        makeToast(text, Toast.LENGTH_LONG);
     }
 }

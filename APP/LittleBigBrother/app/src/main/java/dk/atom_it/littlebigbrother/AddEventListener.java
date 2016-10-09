@@ -72,14 +72,14 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
      */
     private GoogleApiClient client;
 
-    final AddEventListener tthis = this;
+    public Context getContext(){
+        return this;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event_listener);
-
-        final AddEventListener tthis = this;
 
         //Instantiate if necessary the global device and network list
         if(Globals.getInstance().devices == null){
@@ -89,7 +89,7 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
             Globals.getInstance().networks = new ArrayList<>();
         }
 
-        BluetoothManager.getInstance(this).scanBluetooth(this);
+        BluetoothManager.getInstance().scanBluetooth(this);
 
         //Set the dropdown menu for event types
         final Spinner eventTypeSpinner = (Spinner) findViewById(R.id.event_type_spinner);
@@ -107,16 +107,16 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
             @Override
             public void onClick(View view) {
                 try {
-                    JhemeInterpreter interpreter = new JhemeInterpreter(tthis);
+                    JhemeInterpreter interpreter = new JhemeInterpreter();
                     interpreter.eval(jhemeCode.getText().toString());
                 } catch (RuntimeException runtimeEx) {
                     if (runtimeEx.getMessage() != null) {
-                        Toast.makeText(tthis, runtimeEx.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(NotamicusApp.getInstance(), runtimeEx.getMessage(), Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(tthis, "Syntax error", Toast.LENGTH_LONG).show();
+                        Toast.makeText(NotamicusApp.getInstance(), "Syntax error", Toast.LENGTH_LONG).show();
                     }
                 } catch (Exception anyException) {
-                    Toast.makeText(tthis, anyException.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(NotamicusApp.getInstance(), anyException.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -125,10 +125,10 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
         eventCodeLib.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Choose code");
 
-                final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_code_list, (ViewGroup) view.getRootView(), false);
+                final View inflated = LayoutInflater.from(getContext()).inflate(R.layout.dialog_code_list, (ViewGroup) view.getRootView(), false);
                 builder.setView(inflated);
 
                 ArrayList<CodeModel> codeList = Globals.getInstance().cloudCode;
@@ -160,12 +160,14 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
         eventLists.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent toList = new Intent(tthis, EventList.class);
-                tthis.startActivity(toList);
+                Intent toList = new Intent(getContext(), EventList.class);
+                startActivity(toList);
             }
         });
 
         Button eventAddButton = (Button) findViewById(R.id.event_add_button);
+
+
         eventAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -173,11 +175,11 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
                 final int type = eventTypeSpinner.getSelectedItemPosition();
                 final String jhemeProgram = jhemeCode.getText().toString();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
                 if (type == 4 || type == 5) {
                     builder.setTitle("Location");
-                    final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_location, (ViewGroup) view.getRootView(), false);
+                    final View inflated = LayoutInflater.from(getContext()).inflate(R.layout.dialog_location, (ViewGroup) view.getRootView(), false);
                     builder.setView(inflated);
 
                     final TextView txt_lat = (TextView) inflated.findViewById(R.id.dialog_lat);
@@ -186,7 +188,7 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
 
                     //Map button
                     final Button mapButt = (Button) inflated.findViewById(R.id.dialog_map);
-                    mapButt.setOnClickListener(mapPopUp(tthis, Globals.getInstance().userPosition, txt_lat, txt_lng));
+                    mapButt.setOnClickListener(mapPopUp(Globals.getInstance().userPosition, txt_lat, txt_lng));
 
                     //Add button
                     builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
@@ -199,19 +201,19 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
                             try {
                                 lat = Double.parseDouble(txt_lat.getText().toString());
                             } catch (Exception exc) {
-                                Toast.makeText(tthis, "Latitude is not a valid number", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(NotamicusApp.getInstance(), "Latitude is not a valid number", Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             try {
                                 lng = Double.parseDouble(txt_lng.getText().toString());
                             } catch (Exception exc) {
-                                Toast.makeText(tthis, "Longitude is not a valid number", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(NotamicusApp.getInstance(), "Longitude is not a valid number", Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             try {
                                 radius = Double.parseDouble(txt_radius.getText().toString());
                             } catch (Exception exc) {
-                                Toast.makeText(tthis, "Radius is not a valid number", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(NotamicusApp.getInstance(), "Radius is not a valid number", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -224,9 +226,9 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
                                 json.put("lng", lng);
                                 json.put("radius", radius);
                             } catch (JSONException jsonexcept) {
-                                Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(NotamicusApp.getInstance(), "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
-                            processJSON(json, tthis);
+                            processJSON(json);
                         }
                     });
 
@@ -238,11 +240,11 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
                     });
 
                 } else {
-                    BluetoothManager.getInstance(tthis).scanBluetooth(tthis);
+                    scanBluetooth();
                     //WifiManager.
 
                     builder.setTitle("Filter");
-                    View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_wifibt, (ViewGroup) view.getRootView(), false);
+                    View inflated = LayoutInflater.from(getContext()).inflate(R.layout.dialog_wifibt, (ViewGroup) view.getRootView(), false);
                     builder.setView(inflated);
 
                     final TextView txt_filter = (TextView) inflated.findViewById(R.id.dialog_filter);
@@ -250,7 +252,7 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
 
                     //List button
                     final Button devicesButt = (Button) inflated.findViewById(R.id.dialog_macList);
-                    devicesButt.setOnClickListener(devicesPopUp(tthis, txt_filter, inp_filtertype.isChecked(), type == EventManager.BLUETOOTH_ENTER || type == EventManager.BLUETOOTH_EXIT));
+                    devicesButt.setOnClickListener(devicesPopUp(txt_filter, inp_filtertype.isChecked(), type == EventManager.BLUETOOTH_ENTER || type == EventManager.BLUETOOTH_EXIT));
 
                     builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
@@ -265,10 +267,10 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
                                 json.put("filtertype", (inp_filtertype.isChecked() ? 0 : 1));
                                 json.put("filter", txt_filter.getText().toString());
                             } catch (JSONException jsonexcept) {
-                                Toast.makeText(tthis, "An error occured, please try again", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(NotamicusApp.getInstance(), "An error occured, please try again", Toast.LENGTH_SHORT).show();
                             }
-                            Toast.makeText(tthis, "Event has been added", Toast.LENGTH_LONG).show();
-                            processJSON(json, tthis);
+                            Toast.makeText(NotamicusApp.getInstance(), "Event has been added", Toast.LENGTH_LONG).show();
+                            processJSON(json);
                         }
                     });
 
@@ -295,8 +297,8 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    public static void processJSON(JSONObject json, final Activity activity) {
-        final AbstractEvent newEvent = EventManager.getInstance().fromJSON(json, activity);
+    public static void processJSON(JSONObject json) {
+        final AbstractEvent newEvent = EventManager.getInstance().fromJSON(json);
         //Update server
         if (Globals.getInstance().token != null) {
             //final AddEventListener tthis = this;
@@ -324,10 +326,10 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
                 }
 
                 private void AnErrorOccured(final String message) {
-                    activity.runOnUiThread(new Runnable() {
+                    NotamicusApp.getInstance().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(NotamicusApp.getInstance(), message, Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -377,18 +379,21 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
         client.disconnect();
     }
 
-    public static View.OnClickListener mapPopUp(final Activity tthis, final LatLng pos, final TextView dialogLAT, final TextView dialogLNG){
+    private View.OnClickListener mapPopUp(final LatLng pos, final TextView dialogLAT, final TextView dialogLNG){
+        return mapPopUp(this, pos, dialogLAT, dialogLNG);
+    }
+    public static View.OnClickListener mapPopUp(final Activity activity, final LatLng pos, final TextView dialogLAT, final TextView dialogLNG){
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Map lat lng picker
-                final AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Choose location");
 
-                View mapView = LayoutInflater.from(tthis).inflate(R.layout.dialog_map, (ViewGroup) v.getRootView(), false);
+                View mapView = LayoutInflater.from(activity).inflate(R.layout.dialog_map, (ViewGroup) v.getRootView(), false);
                 builder.setView(mapView);
 
-                MapFragment map = (MapFragment) tthis.getFragmentManager().findFragmentById(R.id.dialog_mapFragment);
+                MapFragment map = (MapFragment) activity.getFragmentManager().findFragmentById(R.id.dialog_mapFragment);
 
                 map.getMapAsync(new OnMapReadyCallback() {
                     @Override
@@ -435,15 +440,19 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
         };
     }
 
-    public static View.OnClickListener devicesPopUp(final Activity tthis, final TextView dialogFILTER, final boolean checked, final boolean bluetooth){
+    private View.OnClickListener devicesPopUp(final TextView dialogFILTER, final boolean checked, final boolean bluetooth){
+        return devicesPopUp(this, dialogFILTER, checked, bluetooth);
+    }
+
+    public static View.OnClickListener devicesPopUp(final Activity activity, final TextView dialogFILTER, final boolean checked, final boolean bluetooth){
         if(bluetooth){
             return new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setTitle("Choose device");
 
-                    final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
+                    final View inflated = LayoutInflater.from(activity).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
                     builder.setView(inflated);
 
                     ListView list = (ListView) inflated.findViewById(R.id.wifibt_list);
@@ -476,10 +485,10 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
             return new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setTitle("Choose network");
 
-                    final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
+                    final View inflated = LayoutInflater.from(activity).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
                     builder.setView(inflated);
 
                     ListView list = (ListView) inflated.findViewById(R.id.wifibt_list);
@@ -561,5 +570,9 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
     @Override
     public void onWiFiError() {
 
+    }
+
+    private void scanBluetooth(){
+        BluetoothManager.getInstance().scanBluetooth(this);
     }
 }

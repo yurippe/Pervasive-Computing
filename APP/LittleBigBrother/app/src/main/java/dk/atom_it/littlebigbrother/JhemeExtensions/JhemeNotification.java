@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 
+import dk.atom_it.littlebigbrother.NotamicusApp;
 import dk.atom_it.littlebigbrother.R;
 import dk.atomit.Jheme.Environment.Environment;
 import dk.atomit.Jheme.Interpreter.EvaluationResult;
@@ -39,12 +40,12 @@ public class JhemeNotification extends SchemeProcedure {
 
         JhemeInterpreter interp = (JhemeInterpreter) i;
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(interp.getActivity());
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(NotamicusApp.getInstance());
         mBuilder.setSmallIcon(R.mipmap.ic_launcher);
         mBuilder.setContentTitle(title);
         mBuilder.setContentText(text);
 
-        NotificationManager manager = (NotificationManager) interp.getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager manager = (NotificationManager) NotamicusApp.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(UniqueCounter.getNextInt(), mBuilder.build());
         return new EvaluationResult(e);
     }

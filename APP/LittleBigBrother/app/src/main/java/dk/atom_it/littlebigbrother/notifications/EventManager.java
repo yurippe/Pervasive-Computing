@@ -127,12 +127,12 @@ public class EventManager {
         }
     }
 
-    public AbstractEvent fromJSON(String data, final Activity activity){
-        try{return fromJSON(new JSONObject(data), activity);}
+    public AbstractEvent fromJSON(String data){
+        try{return fromJSON(new JSONObject(data));}
         catch (JSONException e){return null;}
     }
 
-    public AbstractEvent fromJSON(JSONObject data, final Activity activity) {
+    public AbstractEvent fromJSON(JSONObject data) {
 
         //{noteid, type, note} + (for types 4 & 5) {lat, lng, radius} + (for types 0,1,2,3) {filtertype [range 0-1], filter}
         try {
@@ -145,7 +145,7 @@ public class EventManager {
                     @Override
                     public void onEnter() {
                         try {
-                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            JhemeInterpreter jheme = new JhemeInterpreter();
                             jheme.eval(getJhemeCode());
                         }catch (Exception exception){
                             System.err.println("Scheme Error in onEnterLocation");
@@ -172,7 +172,7 @@ public class EventManager {
                     @Override
                     public void onExit() {
                         try{
-                        JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                        JhemeInterpreter jheme = new JhemeInterpreter();
                         jheme.eval(getJhemeCode());
                         } catch (Exception exception){
                                 System.err.println("Scheme Error in onExitLocation");
@@ -190,7 +190,7 @@ public class EventManager {
                     @Override
                     public void onEnter() {
                         try{
-                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            JhemeInterpreter jheme = new JhemeInterpreter();
                             jheme.eval(getJhemeCode());
                         } catch (Exception exception){
                             System.err.println("Scheme Error in onEnterWiFi");
@@ -216,7 +216,7 @@ public class EventManager {
                     @Override
                     public void onExit() {
                         try{
-                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            JhemeInterpreter jheme = new JhemeInterpreter();
                             jheme.eval(getJhemeCode());
                         } catch (Exception exception){
                             System.err.println("Scheme Error in onExitWiFi");
@@ -234,7 +234,7 @@ public class EventManager {
                     @Override
                     public void onEnter() {
                         try{
-                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            JhemeInterpreter jheme = new JhemeInterpreter();
                             jheme.eval(getJhemeCode());
                         } catch (Exception exception){
                             System.err.println("Scheme Error in onEnterBluetooth");
@@ -260,7 +260,7 @@ public class EventManager {
                     @Override
                     public void onExit() {
                         try{
-                            JhemeInterpreter jheme = new JhemeInterpreter(activity);
+                            JhemeInterpreter jheme = new JhemeInterpreter();
                             jheme.eval(getJhemeCode());
                         } catch (Exception exception){
                             System.err.println("Scheme Error in onExitBluetooth");
