@@ -1,5 +1,5 @@
 <resources>
-    <string name="base_url">http://84.238.20.80:7777</string>
+    <string name="base_url">http://yurippe.net:7777</string>
 
     <string name="app_name">Notamicus</string>
 
