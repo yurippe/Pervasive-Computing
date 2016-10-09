@@ -38,7 +38,7 @@ def login():
     json = util.getJson(request)
     user = database.login_user_object(json["username"], json["password"])
     if user:
-        resp = util.makeResponseDict(data={"token": user.token, "username": user.username})
+        resp = util.makeResponseDict(data={"token": user.token, "username": user.username, "displayname": user.displayname})
         SESSIONS[user.token] = user
     else:
         resp = util.makeResponseDict(403, "Bad credentials")
@@ -67,6 +67,16 @@ def signup():
 
     return JSON.dumps(resp)
 
+
+@app.route('/updatedisplayname', methods=["POST"])
+def update_display_name():
+    json = util.getJson(request)
+    user = database.get_user_object_from_token(json["token"])
+    if user:
+        database.update_user_displayname(user.ID, json["displayname"])
+        return JSON.dumps(util.makeResponseDict(200, "Display name updated"))
+    else:
+        return JSON.dumps(util.makeResponseDict(403, "Bad credentials"))
 
 
 @app.route('/updatepos', methods=["POST"])
@@ -250,15 +260,17 @@ def add_friend():
     user = database.get_user_object_from_token(json["token"])
 
     if user:
-        if database.add_friend(user.ID, json["friendid"]):
+        if user.ID == json["friendid"]:
+            return JSON.dumps(300, "Cannot friend yourself")
+        elif database.add_friend(user.ID, json["friendid"]):
             return JSON.dumps(util.makeResponseDict(200, "Friend added!"))
         else:
-            return JSON.dumps(util.makeResponseDict(400, "FriendID not found"))
+            return JSON.dumps(util.makeResponseDict(400, "ID of other user not existing"))
     else:
         return JSON.dumps(util.makeResponseDict(403, "Bad credentials!"))
 
 
-@app.route('deletefriend', methods=["POST"])
+@app.route('/deletefriend', methods=["POST"])
 def remove_friend():
     json = util.getJson(request)
 

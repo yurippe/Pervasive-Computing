@@ -15,6 +15,8 @@ import dk.atom_it.littlebigbrother.notifications.AbstractEvent;
 public class Globals {
 
     public String token = null;
+    public String username = null;
+    public String displayname = null;
 
     public LatLng userPosition = null;
 

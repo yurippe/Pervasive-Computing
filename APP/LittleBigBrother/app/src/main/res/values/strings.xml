@@ -1,12 +1,15 @@
 <resources>
+    <string name="base_url">http://84.238.20.80:7777</string>
+
     <string name="app_name">Notamicus</string>
-    <string name="base_url">http://yurippe.net:7777</string>
+
     <string name="title_activity_maps">Notamicus: Map</string>
     <string name="title_activity_login">Notamicus: Login</string>
     <string name="title_activity_signup">Notamicus: Sign Up</string>
     <string name="title_activity_add_event_listener">Notamicus: Add Event</string>
     <string name="title_activity_event_list">Notamicus: All Events</string>
     <string name="title_activity_update_event_listener">Notamicus: Update Event</string>
+    <string name="title_activity_user_profile">Notamicus: User Profile</string>
 
     <string-array name="event_types">
         <item>On Bluetooth Enter</item>

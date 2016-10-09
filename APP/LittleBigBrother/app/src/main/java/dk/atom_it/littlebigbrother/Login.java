@@ -20,6 +20,7 @@ import java.util.Map;
 
 import dk.atom_it.littlebigbrother.api.API;
 import dk.atom_it.littlebigbrother.api.Endpoint;
+import dk.atom_it.littlebigbrother.data.Globals;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -70,9 +71,13 @@ public class Login extends AppCompatActivity {
                                 return;
                             }
 
+                            Globals.getInstance().token = jsonresp.getJSONObject("data").getString("token");
+                            Globals.getInstance().username = jsonresp.getJSONObject("data").getString("username");
+                            Globals.getInstance().displayname = jsonresp.getJSONObject("data").getString("displayname");
+
                             Intent toMaps = new Intent(tthis, MapsActivity.class);
-                            toMaps.putExtra("token", jsonresp.getJSONObject("data").getString("token"));
-                            toMaps.putExtra("username", jsonresp.getJSONObject("data").getString("username"));
+                            toMaps.putExtra("token", Globals.getInstance().token);
+                            toMaps.putExtra("username", Globals.getInstance().username);
                             tthis.startActivity(toMaps);
 
                         } catch (JSONException e) {
