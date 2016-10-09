@@ -68,7 +68,7 @@ def checkDB():
         add_user("a", "a")
 
     #Add some code into the database
-    add_code("Simple notification", "(notify Notification Title Notification Body))")
+    add_code("Simple notification", "(notify ''title'' ''body'')")
 
 
 #wub, wub...
@@ -555,7 +555,7 @@ def add_code(title, code):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("INSERT INTO code(title, code) VALUES ('%s', '%s')" % (title, code))
+    c.execute("INSERT OR IGNORE INTO code(title, code) VALUES('%s', '%s')" % (title, code))
     conn.commit()
     conn.close()
 

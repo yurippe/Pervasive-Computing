@@ -13,6 +13,11 @@ public class CodeModel {
         this.code = code;
     }
 
-    public String getTitle() {return title;}
-    public String getCode() {return code;}
+    public String getTitle() {
+        return title;
+    }
+
+    public String getCode() {
+        return code;
+    }
 }

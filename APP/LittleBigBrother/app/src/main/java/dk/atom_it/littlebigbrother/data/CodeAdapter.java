@@ -25,13 +25,16 @@ public class CodeAdapter extends ArrayAdapter<CodeModel> {
         CodeModel codeModel = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.wifibt_list_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.code_list_item, parent, false);
         }
 
         TextView title = (TextView) convertView.findViewById(R.id.code_title);
         TextView code = (TextView) convertView.findViewById(R.id.code_code);
-        title.setText(codeModel.getTitle());
-        code.setText(codeModel.getCode());
+
+        if(title != null & code != null){
+            title.setText(codeModel.getTitle());
+            code.setText(codeModel.getCode());
+        }
 
         return convertView;
     }

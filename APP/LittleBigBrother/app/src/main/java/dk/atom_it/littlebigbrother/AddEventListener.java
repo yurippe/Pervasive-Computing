@@ -120,7 +120,7 @@ public class AddEventListener extends AppCompatActivity {
 
                 ArrayList<CodeModel> codeList = Globals.getInstance().cloudCode;
 
-                ListView list = (ListView) inflated.findViewById(R.id.dialog_code_list);
+                ListView list = (ListView) inflated.findViewById(R.id.code_list);
                 CodeAdapter adapter = new CodeAdapter(inflated.getContext(), codeList);
                 list.setAdapter(adapter);
 

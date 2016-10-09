@@ -34,15 +34,6 @@ public class DeviceAdapter extends ArrayAdapter<DeviceModel> {
         TextView mac = (TextView) convertView.findViewById(R.id.device_mac);
         TextView name = (TextView) convertView.findViewById(R.id.device_name);
 
-        /*Button claimbutton = (Button) convertView.findViewById(R.id.device_select);
-
-        claimbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(getContext(), "Claimed", Toast.LENGTH_SHORT).show();
-            }
-        });*/
-
         mac.setText(device.mac);
         name.setText(device.name);
 

@@ -367,7 +367,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void getCloudeCode(){
         Globals.getInstance().cloudCode = new ArrayList<>();
-        Endpoint endpoint = new Endpoint(tthis, "code");
+        Endpoint endpoint = new Endpoint(tthis, "/code");
         endpoint.call(new JSONObject().toString(), new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -379,16 +379,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 try{
                     JSONObject jsonresp = new JSONObject(response.body().string());
                     JSONArray codearray = jsonresp.getJSONArray("data");
+                    System.out.println("code data: " + codearray.toString());
 
                     for(int i = 0; i < codearray.length(); i++){
                         JSONObject singleCode = codearray.getJSONObject(i);
-                        Globals.getInstance().cloudCode.add(new CodeModel(singleCode.getString("title"), singleCode.getString("code")));
+                        CodeModel codeModel = new CodeModel(singleCode.getString("title"), singleCode.getString("code"));
+                        Globals.getInstance().cloudCode.add(codeModel);
+
+                        System.out.println("Code added (title: " + codeModel.getTitle() + " code: " + codeModel.getCode() + ")");
                     }
                 } catch (JSONException e){
                     //Nothing, as always
                 }
             }
         });
+
     }
 
     private void getCloudNotes(){

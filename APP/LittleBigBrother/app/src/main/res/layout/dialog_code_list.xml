@@ -14,8 +14,6 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/dialog_code_list"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentStart="true" />
+        android:id="@+id/code_list" />
 
 </LinearLayout>
