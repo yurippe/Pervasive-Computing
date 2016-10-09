@@ -362,8 +362,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         userupdates.start();
     }
 
-    private void getCloudNotes(){
+    private void getCloudeCode(){
+        
+    }
 
+    private void getCloudNotes(){
         try{
             //Flushing?
             EventManager.getInstance().clearListeners();

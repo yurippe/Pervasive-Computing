@@ -3,6 +3,7 @@ package dk.atom_it.littlebigbrother.data;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -26,6 +27,8 @@ public class Globals {
     public AbstractEvent tempEvent = null;
 
     public Set<Integer> friendid = null;
+
+    public ArrayList<CodeModel> cloudCode = null;
 
     //Singleton stuff:
     private static Globals instance;

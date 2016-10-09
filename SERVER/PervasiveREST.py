@@ -284,6 +284,13 @@ def remove_friend():
 
 
 ######################################################
+# Code
+@app.route('/code', methods=[GET])
+def get_code():
+    return JSON.dumps(database.get_code())
+
+
+######################################################
 # SETUP
 if __name__ == '__main__':
     database.checkDB()

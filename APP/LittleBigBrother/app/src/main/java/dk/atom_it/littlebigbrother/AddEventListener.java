@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.atom_it.littlebigbrother.JhemeExtensions.JhemeInterpreter;
+import dk.atom_it.littlebigbrother.data.CodeAdapter;
+import dk.atom_it.littlebigbrother.data.CodeModel;
 import dk.atom_it.littlebigbrother.data.DeviceAdapter;
 import dk.atom_it.littlebigbrother.data.DeviceModel;
 import dk.atom_it.littlebigbrother.data.Globals;
@@ -102,6 +105,42 @@ public class AddEventListener extends AppCompatActivity {
                 } catch (Exception anyException) {
                     Toast.makeText(tthis, anyException.getMessage(), Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        Button eventCodeLib = (Button) findViewById(R.id.event_codelist);
+        eventCodeLib.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                builder.setTitle("Choose code");
+
+                final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_code_list, (ViewGroup) view.getRootView(), false);
+                builder.setView(inflated);
+
+                ArrayList<CodeModel> codeList = new ArrayList<CodeModel>();
+
+                ListView list = (ListView) inflated.findViewById(R.id.dialog_code_list);
+                CodeAdapter adapter = new CodeAdapter(inflated.getContext(), codeList);
+
+
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+
+                    }
+                });
+
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
             }
         });
 

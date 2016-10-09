@@ -51,7 +51,11 @@ def checkDB():
     c.execute("CREATE TABLE IF NOT EXISTS notes(noteid INTEGER PRIMARY KEY AUTOINCREMENT, notetype INTEGER NOT NULL, owner INTEGER REFERENCES users(userid) NOT NULL, note TEXT);")
     c.execute("CREATE TABLE IF NOT EXISTS notepos(noteid INTEGER PRIMARY KEY REFERENCES notes(noteid) ON DELETE CASCADE ON UPDATE CASCADE, radius REAL DEFAULT 10, lat REAL NOT NULL, lng REAL NOT NULL);")
     c.execute("CREATE TABLE IF NOT EXISTS notebluewhy(noteid INTEGER PRIMARY KEY REFERENCES notes(noteid) ON DELETE CASCADE ON UPDATE CASCADE, filtertype INTEGER DEFAULT 0, filter VARCHAR(256));")
+    #Code
+    c.execute("CREATE TABLE IF NOT EXISTS code(title VARCHAR(256) PRIMARY KEY, code TEXT)")
+
     conn.commit()
+    conn.close()
 
     #Check if test users are in database
     if not get_user("Steffan"):
@@ -63,8 +67,10 @@ def checkDB():
     if not get_user("a"):
         add_user("a", "a")
 
-    conn.close()
+    #Add some code into the database
+    add_code("title", "code")
 
+    
 
 #wub, wub...
 def drop_the_tables():
@@ -529,3 +535,27 @@ def delete_friend(fromID, toID):
             return "Couldn't favorite in database"
     else:
         return "Users not recognized"
+
+
+######################################################
+# Code
+def get_code():
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM code")
+    result = c.fetchall()
+
+    codes = [{"title": code[0], "code": code[1]} for code in result]
+    conn.close()
+
+    return codes
+
+def add_code(title, code):
+    conn = connectDB()
+    c = conn.cursor()
+
+    c.execute("INSERT INTO code (title, code) VALUES ('%s', '%s')" % (title, code))
+    conn.commit()
+
+    return True
