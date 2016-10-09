@@ -34,8 +34,10 @@ public class DeviceAdapter extends ArrayAdapter<DeviceModel> {
         TextView mac = (TextView) convertView.findViewById(R.id.device_mac);
         TextView name = (TextView) convertView.findViewById(R.id.device_name);
 
-        mac.setText(device.mac);
-        name.setText(device.name);
+        if(device != null && mac != null && name != null){
+            mac.setText(device.mac);
+            name.setText(device.name);
+        }
 
         return convertView;
     }

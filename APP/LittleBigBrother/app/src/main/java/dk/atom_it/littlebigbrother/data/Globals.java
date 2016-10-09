@@ -30,6 +30,9 @@ public class Globals {
 
     public ArrayList<CodeModel> cloudCode = null;
 
+    public ArrayList<DeviceModel> devices = null;
+    public ArrayList<DeviceModel> networks = null;
+
     //Singleton stuff:
     private static Globals instance;
     protected Globals(){}

@@ -20,4 +20,14 @@ public class CodeModel {
     public String getCode() {
         return code;
     }
+
+    @Override
+    public boolean equals(Object other){
+        if(other instanceof CodeModel){
+            CodeModel otha = (CodeModel) other;
+            return otha.code.equals(this.code);
+        } else {
+            return false;
+        }
+    }
 }

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -63,7 +64,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class AddEventListener extends AppCompatActivity {
+public class AddEventListener extends AppCompatActivity implements BluetoothListener, WiFiListener {
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -71,12 +72,24 @@ public class AddEventListener extends AppCompatActivity {
      */
     private GoogleApiClient client;
 
+    final AddEventListener tthis = this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event_listener);
 
         final AddEventListener tthis = this;
+
+        //Instantiate if necessary the global device and network list
+        if(Globals.getInstance().devices == null){
+            Globals.getInstance().devices = new ArrayList<>();
+        }
+        if(Globals.getInstance().networks == null){
+            Globals.getInstance().networks = new ArrayList<>();
+        }
+
+        BluetoothManager.getInstance(this).scanBluetooth(this);
 
         //Set the dropdown menu for event types
         final Spinner eventTypeSpinner = (Spinner) findViewById(R.id.event_type_spinner);
@@ -152,7 +165,6 @@ public class AddEventListener extends AppCompatActivity {
             }
         });
 
-
         Button eventAddButton = (Button) findViewById(R.id.event_add_button);
         eventAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,12 +238,19 @@ public class AddEventListener extends AppCompatActivity {
                     });
 
                 } else {
+                    BluetoothManager.getInstance(tthis).scanBluetooth(tthis);
+                    //WifiManager.
+
                     builder.setTitle("Filter");
                     View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_wifibt, (ViewGroup) view.getRootView(), false);
                     builder.setView(inflated);
 
                     final TextView txt_filter = (TextView) inflated.findViewById(R.id.dialog_filter);
                     final ToggleButton inp_filtertype = (ToggleButton) inflated.findViewById(R.id.dialog_filtertype);
+
+                    //List button
+                    final Button devicesButt = (Button) inflated.findViewById(R.id.dialog_macList);
+                    devicesButt.setOnClickListener(devicesPopUp(tthis, txt_filter, inp_filtertype.isChecked(), type == EventManager.BLUETOOTH_ENTER || type == EventManager.BLUETOOTH_EXIT));
 
                     builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
@@ -363,11 +382,11 @@ public class AddEventListener extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //Map lat lng picker
-                final AlertDialog.Builder mapBuilder = new AlertDialog.Builder(tthis);
-                mapBuilder.setTitle("Choose location");
+                final AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                builder.setTitle("Choose location");
 
                 View mapView = LayoutInflater.from(tthis).inflate(R.layout.dialog_map, (ViewGroup) v.getRootView(), false);
-                mapBuilder.setView(mapView);
+                builder.setView(mapView);
 
                 MapFragment map = (MapFragment) tthis.getFragmentManager().findFragmentById(R.id.dialog_mapFragment);
 
@@ -390,120 +409,157 @@ public class AddEventListener extends AppCompatActivity {
                             }
                         });
 
-                        mapBuilder.setPositiveButton("set", new DialogInterface.OnClickListener() {
+                        builder.setPositiveButton("set", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dialogLAT.setText(marker.getPosition().latitude + "");
-                                dialogLNG.setText(marker.getPosition().longitude + "");
+                                String lat = marker.getPosition().latitude + "";
+                                String lng = marker.getPosition().longitude + "";
+
+                                dialogLAT.setText(lat);
+                                dialogLNG.setText(lng);
                                 dialog.dismiss();
                             }
                         });
 
-                        mapBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
                             }
                         });
 
-                        mapBuilder.show();
+                        builder.show();
                     }
                 });
             }
         };
     }
 
-    private interface BluetoothOnClickListener extends View.OnClickListener, BluetoothListener {
-        //Only an interface to combine the two
-    }
-
-    private interface WifiOnClicklistener extends View.OnClickListener, WiFiListener {
-        //The same as above
-    }
-
     public static View.OnClickListener devicesPopUp(final Activity tthis, final TextView dialogFILTER, final boolean checked, final boolean bluetooth){
         if(bluetooth){
-            return new BluetoothOnClickListener() {
+            return new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    final AlertDialog.Builder listBuilder = new AlertDialog.Builder(tthis);
-                    listBuilder.setTitle("Choose device");
+                public void onClick(View view) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                    builder.setTitle("Choose device");
 
-                    //TODO: Load list of bluetooth
+                    final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
+                    builder.setView(inflated);
 
-                    //TODO: Add listener on every item
+                    ListView list = (ListView) inflated.findViewById(R.id.wifibt_list);
+                    DeviceAdapter adapter = new DeviceAdapter(inflated.getContext(), Globals.getInstance().devices);
+                    list.setAdapter(adapter);
 
-                    //TODO: Add refreshlistener on refresh button
-
-                    listBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                            DeviceModel deviceModel = Globals.getInstance().devices.get(position);
+                            if(checked){
+                                dialogFILTER.setText(deviceModel.mac);
+                            } else {
+                                dialogFILTER.setText(deviceModel.name);
+                            }
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
                             dialog.cancel();
                         }
                     });
-                }
 
-                @Override
-                public void onBluetoothScanStarted() {
-
-                }
-
-                @Override
-                public void onBluetoothScanResults(List<BluetoothDevice> results) {
-
-                }
-
-                @Override
-                public void onBluetoothScanCompleted() {
-
-                }
-
-                @Override
-                public void onBluetoothError() {
-
+                    builder.show();
                 }
             };
         } else {
-            return new WifiOnClicklistener() {
+            return new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    final AlertDialog.Builder listBuilder = new AlertDialog.Builder(tthis);
-                    listBuilder.setTitle("Choose device");
+                public void onClick(View view) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(tthis);
+                    builder.setTitle("Choose network");
 
-                    //TODO: Load list of wifis
+                    final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
+                    builder.setView(inflated);
 
-                    //TODO: Add listener on every item
+                    ListView list = (ListView) inflated.findViewById(R.id.wifibt_list);
+                    DeviceAdapter adapter = new DeviceAdapter(inflated.getContext(), Globals.getInstance().networks);
+                    list.setAdapter(adapter);
 
-                    //TODO: Add refreshlistener on refresh button
-
-                    listBuilder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                            DeviceModel deviceModel = Globals.getInstance().networks.get(position);
+                            if(checked){
+                                dialogFILTER.setText(deviceModel.mac);
+                            } else {
+                                dialogFILTER.setText(deviceModel.name);
+                            }
+                        }
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
                             dialog.cancel();
                         }
                     });
-                }
 
-                @Override
-                public void onWiFiScanStarted() {
-
-                }
-
-                @Override
-                public void onWiFiScanResults(List<ScanResult> results) {
-
-                }
-
-                @Override
-                public void onWiFiScanCompleted() {
-
-                }
-
-                @Override
-                public void onWiFiError() {
-
+                    builder.show();
                 }
             };
         }
+    }
+
+    @Override
+    public void onBluetoothScanStarted() {
+
+    }
+
+    @Override
+    public void onBluetoothScanResults(List<BluetoothDevice> results) {
+        for(BluetoothDevice device : results) {
+            DeviceModel devicemodel = new DeviceModel(device.getAddress(), device.getName());
+            if (Globals.getInstance().devices.contains(devicemodel)) {
+                return;
+            }
+            Globals.getInstance().devices.add(devicemodel);
+        }
+    }
+
+    @Override
+    public void onBluetoothScanCompleted() {
+
+    }
+
+    @Override
+    public void onBluetoothError() {
+
+    }
+
+    @Override
+    public void onWiFiScanStarted() {
+
+    }
+
+    @Override
+    public void onWiFiScanResults(List<ScanResult> results) {
+        for(ScanResult wifi : results) {
+            DeviceModel devicemodel = new DeviceModel(wifi.BSSID, wifi.SSID);
+            if (Globals.getInstance().networks.contains(devicemodel)) {
+                return;
+            }
+            Globals.getInstance().networks.add(devicemodel);
+        }
+    }
+
+    @Override
+    public void onWiFiScanCompleted() {
+
+    }
+
+    @Override
+    public void onWiFiError() {
+
     }
 }

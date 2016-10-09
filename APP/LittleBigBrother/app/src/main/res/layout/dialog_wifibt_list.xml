@@ -39,7 +39,7 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/dialog_wifibt_list"
+        android:id="@+id/wifibt_list"
         android:layout_marginTop="41dp"
         android:layout_below="@+id/textView"
         android:layout_alignParentStart="true" />
