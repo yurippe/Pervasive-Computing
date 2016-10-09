@@ -285,7 +285,7 @@ def remove_friend():
 
 ######################################################
 # Code
-@app.route('/code', methods=[GET])
+@app.route('/code', methods=["GET"])
 def get_code():
     return JSON.dumps(database.get_code())
 

@@ -551,11 +551,13 @@ def get_code():
 
     return codes
 
+
 def add_code(title, code):
     conn = connectDB()
     c = conn.cursor()
 
-    c.execute("INSERT INTO code (title, code) VALUES ('%s', '%s')" % (title, code))
+    c.execute("INSERT INTO code(title, code) VALUES ('%s', '%s')" % (title, code))
     conn.commit()
+    conn.close()
 
     return True
