@@ -118,20 +118,19 @@ public class AddEventListener extends AppCompatActivity {
                 final View inflated = LayoutInflater.from(tthis).inflate(R.layout.dialog_code_list, (ViewGroup) view.getRootView(), false);
                 builder.setView(inflated);
 
-                ArrayList<CodeModel> codeList = new ArrayList<CodeModel>();
+                ArrayList<CodeModel> codeList = Globals.getInstance().cloudCode;
 
                 ListView list = (ListView) inflated.findViewById(R.id.dialog_code_list);
                 CodeAdapter adapter = new CodeAdapter(inflated.getContext(), codeList);
-
-
+                list.setAdapter(adapter);
 
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-
+                        CodeModel codeModel = Globals.getInstance().cloudCode.get(position);
+                        jhemeCode.setText(codeModel.getCode());
                     }
                 });
-
 
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override

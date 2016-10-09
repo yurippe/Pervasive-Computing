@@ -16,7 +16,7 @@ import dk.atom_it.littlebigbrother.R;
  */
 public class CodeAdapter extends ArrayAdapter<CodeModel> {
 
-    public DeviceAdapter(Context context, ArrayList<CodeModel> code){
+    public CodeAdapter (Context context, ArrayList<CodeModel> code){
         super(context, 0, code);
     }
 

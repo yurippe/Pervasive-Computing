@@ -68,9 +68,9 @@ def checkDB():
         add_user("a", "a")
 
     #Add some code into the database
-    add_code("title", "code")
+    add_code("Simple notification", "(notify 'Notification Title' 'Notification Body'))")
 
-    
+
 
 #wub, wub...
 def drop_the_tables():

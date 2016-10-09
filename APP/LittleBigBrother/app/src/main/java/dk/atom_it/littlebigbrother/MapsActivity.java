@@ -30,11 +30,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import dk.atom_it.littlebigbrother.api.Endpoint;
+import dk.atom_it.littlebigbrother.data.CodeModel;
 import dk.atom_it.littlebigbrother.data.Globals;
 import dk.atom_it.littlebigbrother.data.User;
 import dk.atom_it.littlebigbrother.managers.BluetoothListener;
@@ -152,6 +154,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(Globals.getInstance().token != null){
             getCloudFriends();
             getCloudNotes();
+            getCloudeCode();
             startUserUpdates();
         }
     }
@@ -363,7 +366,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getCloudeCode(){
-        
+        Globals.getInstance().cloudCode = new ArrayList<>();
+        Endpoint endpoint = new Endpoint(tthis, "code");
+        endpoint.call(new JSONObject().toString(), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                makeToast("Could not download code from server");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try{
+                    JSONObject jsonresp = new JSONObject(response.body().string());
+                    JSONArray codearray = jsonresp.getJSONArray("data");
+
+                    for(int i = 0; i < codearray.length(); i++){
+                        JSONObject singleCode = codearray.getJSONObject(i);
+                        Globals.getInstance().cloudCode.add(new CodeModel(singleCode.getString("title"), singleCode.getString("code")));
+                    }
+                } catch (JSONException e){
+                    //Nothing, as always
+                }
+            }
+        });
     }
 
     private void getCloudNotes(){
