@@ -68,8 +68,7 @@ def checkDB():
         add_user("a", "a")
 
     #Add some code into the database
-    add_code("Simple notification", "(notify 'Notification Title' 'Notification Body'))")
-
+    add_code("Simple notification", "(notify Notification Title Notification Body))")
 
 
 #wub, wub...
