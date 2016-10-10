@@ -151,6 +151,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Lacking permissions to access GPS!", Toast.LENGTH_SHORT).show();
         }
 
+        Globals.getInstance().friendid = new HashSet<Integer>();
+        Globals.getInstance().cloudCode = new ArrayList<>();
         if(Globals.getInstance().token != null){
             getCloudFriends();
             getCloudNotes();
@@ -370,7 +372,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getCloudeCode(){
-        Globals.getInstance().cloudCode = new ArrayList<>();
         Endpoint endpoint = new Endpoint("/code");
         endpoint.call(new JSONObject().toString(), new Callback() {
             @Override
@@ -455,8 +456,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     try{
                         JSONObject jsonresp = new JSONObject(response.body().string());
                         JSONArray friendarray = jsonresp.getJSONArray("data");
-
-                        Globals.getInstance().friendid = new HashSet<Integer>();
 
                         for(int i = 0; i < friendarray.length(); i++){
                             JSONObject friend = friendarray.getJSONObject(i);

@@ -79,14 +79,14 @@ public class UpdateEventListener extends AppCompatActivity {
                 WifiEvent cevent = (WifiEvent) event;
 
                 dialogFILTER.setText(cevent.getFilter());
-                dialogFTYPE.setChecked(cevent.getFilterType() == BluetoothEvent.FILTER_MAC);
+                dialogFTYPE.setChecked(cevent.getFilterType() == WifiEvent.FILTER_MAC);
             }
 
-            findViewById(R.id.NoteUWIFIBT).setVisibility(View.VISIBLE);
             findViewById(R.id.NoteULoc).setVisibility(View.GONE);
+            findViewById(R.id.NoteUWIFIBT).setVisibility(View.VISIBLE);
 
         } else if (event instanceof LocationEvent) {
-            //Set standrard values for changing type over
+            //Set standard values for changing type over
             dialogFILTER.setText("FF:FF:FF:FF:FF:FF");
             dialogFTYPE.setChecked(true);
 
@@ -95,17 +95,12 @@ public class UpdateEventListener extends AppCompatActivity {
             dialogLNG.setText(cevent.getLocation().longitude + "");
             dialogRADIUS.setText(cevent.getRadius() + "");
 
-            findViewById(R.id.NoteULoc).setVisibility(View.VISIBLE);
             findViewById(R.id.NoteUWIFIBT).setVisibility(View.GONE);
+            findViewById(R.id.NoteULoc).setVisibility(View.VISIBLE);
 
         } else {
             //wtf?
         }
-
-        //Map button
-        final Button mapButt = (Button) findViewById(R.id.dialog_map);
-        mapButt.setOnClickListener(AddEventListener.mapPopUp(this, new LatLng(Double.parseDouble(dialogLAT.getText().toString()), Double.parseDouble(dialogLNG.getText().toString())), dialogLAT, dialogLNG));
-
 
         //Common fields
         final EditText jheme = (EditText) findViewById(R.id.NoteUJheme);
@@ -138,7 +133,15 @@ public class UpdateEventListener extends AppCompatActivity {
             }
         });
 
-        //Buttons
+        //Map button
+        final Button mapButt = (Button) findViewById(R.id.dialog_map);
+        mapButt.setOnClickListener(AddEventListener.mapPopUp(this, new LatLng(Double.parseDouble(dialogLAT.getText().toString()), Double.parseDouble(dialogLNG.getText().toString())), dialogLAT, dialogLNG));
+
+        //List button
+        final Button devicesButt = (Button) findViewById(R.id.dialog_macList);
+        devicesButt.setOnClickListener(AddEventListener.devicesPopUp(this, dialogFILTER, dialogFTYPE.isChecked(), spinner));
+
+        //Other buttons
         final Button DeleteButt = (Button) findViewById(R.id.NoteUDelete);
         final Button UpdateButt = (Button) findViewById(R.id.NoteUUpdate);
 
@@ -195,9 +198,8 @@ public class UpdateEventListener extends AppCompatActivity {
                     try{
                         JSONObject resp = new JSONObject(response.body().string());
                         if(resp.getInt("status") != 200){
-                            makeToast("Deletion failed: " + resp.getString("message"));
+                            makeToast("Serverside deletion failed: " + resp.getString("message"));
                             response.close();
-                            return;
                         }
                         EventManager.getInstance().unqueueListener(event);
 

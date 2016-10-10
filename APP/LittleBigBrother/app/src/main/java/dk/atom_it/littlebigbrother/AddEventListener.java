@@ -252,7 +252,7 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
 
                     //List button
                     final Button devicesButt = (Button) inflated.findViewById(R.id.dialog_macList);
-                    devicesButt.setOnClickListener(devicesPopUp(txt_filter, inp_filtertype.isChecked(), type == EventManager.BLUETOOTH_ENTER || type == EventManager.BLUETOOTH_EXIT));
+                    devicesButt.setOnClickListener(devicesPopUp(txt_filter, inp_filtertype.isChecked(), eventTypeSpinner));
 
                     builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
@@ -440,84 +440,56 @@ public class AddEventListener extends AppCompatActivity implements BluetoothList
         };
     }
 
-    private View.OnClickListener devicesPopUp(final TextView dialogFILTER, final boolean checked, final boolean bluetooth){
-        return devicesPopUp(this, dialogFILTER, checked, bluetooth);
+    private View.OnClickListener devicesPopUp(final TextView dialogFILTER, final boolean checked, final Spinner spinner){
+        return devicesPopUp(this, dialogFILTER, checked, spinner);
     }
 
-    public static View.OnClickListener devicesPopUp(final Activity activity, final TextView dialogFILTER, final boolean checked, final boolean bluetooth){
-        if(bluetooth){
-            return new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    public static View.OnClickListener devicesPopUp(final Activity activity, final TextView dialogFILTER, final boolean checked, final Spinner spinner){
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                if(spinner.getSelectedItemPosition() == BluetoothEvent.FILTER_MAC || spinner.getSelectedItemPosition() == BluetoothEvent.FILTER_NAME){
                     builder.setTitle("Choose device");
+                } else {
+                    builder.setTitle("Choose network");
+                }
 
-                    final View inflated = LayoutInflater.from(activity).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
-                    builder.setView(inflated);
+                final View inflated = LayoutInflater.from(activity).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
+                builder.setView(inflated);
 
-                    ListView list = (ListView) inflated.findViewById(R.id.wifibt_list);
+                ListView list = (ListView) inflated.findViewById(R.id.wifibt_list);
+                if(spinner.getSelectedItemPosition() == BluetoothEvent.FILTER_MAC || spinner.getSelectedItemPosition() == BluetoothEvent.FILTER_NAME){
                     DeviceAdapter adapter = new DeviceAdapter(inflated.getContext(), Globals.getInstance().devices);
                     list.setAdapter(adapter);
 
-                    list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                            DeviceModel deviceModel = Globals.getInstance().devices.get(position);
-                            if(checked){
-                                dialogFILTER.setText(deviceModel.mac);
-                            } else {
-                                dialogFILTER.setText(deviceModel.name);
-                            }
-                        }
-                    });
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int i) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    builder.show();
-                }
-            };
-        } else {
-            return new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                    builder.setTitle("Choose network");
-
-                    final View inflated = LayoutInflater.from(activity).inflate(R.layout.dialog_wifibt_list, (ViewGroup) view.getRootView(), false);
-                    builder.setView(inflated);
-
-                    ListView list = (ListView) inflated.findViewById(R.id.wifibt_list);
+                } else {
                     DeviceAdapter adapter = new DeviceAdapter(inflated.getContext(), Globals.getInstance().networks);
                     list.setAdapter(adapter);
-
-                    list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id){
-                            DeviceModel deviceModel = Globals.getInstance().networks.get(position);
-                            if(checked){
-                                dialogFILTER.setText(deviceModel.mac);
-                            } else {
-                                dialogFILTER.setText(deviceModel.name);
-                            }
-                        }
-                    });
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int i) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    builder.show();
                 }
-            };
-        }
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                        DeviceModel deviceModel = Globals.getInstance().devices.get(position);
+                        if(checked){
+                            dialogFILTER.setText(deviceModel.mac);
+                        } else {
+                            dialogFILTER.setText(deviceModel.name);
+                        }
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        };
     }
 
     @Override
